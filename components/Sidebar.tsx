@@ -8,6 +8,7 @@ import {
   Building2, BarChart2, Bell, ScrollText, Settings, LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { signOut } from '@/lib/actions/auth'
 
 const nav = [
   { label: 'OVERVIEW', items: [
@@ -89,10 +90,12 @@ export default function Sidebar() {
 
       {/* Bottom */}
       <div className="px-3 py-4 border-t border-gray-800">
-        <button className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm text-gray-400 hover:text-red-400 hover:bg-gray-800 w-full transition-colors">
-          <LogOut className="w-4 h-4" />
-          Sign Out
-        </button>
+        <form action={signOut}>
+          <button className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm text-gray-400 hover:text-red-400 hover:bg-gray-800 w-full transition-colors">
+            <LogOut className="w-4 h-4" />
+            Sign Out
+          </button>
+        </form>
       </div>
     </aside>
   )
