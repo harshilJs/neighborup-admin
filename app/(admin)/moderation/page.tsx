@@ -2,6 +2,7 @@ import PageHeader from '@/components/PageHeader'
 import StatusBadge from '@/components/StatusBadge'
 import { supabaseAdmin } from '@/lib/supabase'
 import { revalidatePath } from 'next/cache'
+import SubmitButton from '@/components/SubmitButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -98,12 +99,20 @@ export default async function Page() {
                       <form action={reviewModerationItem}>
                         <input type="hidden" name="id" value={item.id} />
                         <input type="hidden" name="flagged" value="false" />
-                        <button className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">Dismiss</button>
+                        <SubmitButton
+                          label="Dismiss"
+                          pendingLabel="Dismissing..."
+                          className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                        />
                       </form>
                       <form action={reviewModerationItem}>
                         <input type="hidden" name="id" value={item.id} />
                         <input type="hidden" name="flagged" value="true" />
-                        <button className="text-xs text-red-600 hover:text-red-700 font-medium">Confirm Flag</button>
+                        <SubmitButton
+                          label="Confirm Flag"
+                          pendingLabel="Confirming..."
+                          className="inline-flex items-center gap-1 text-xs text-red-600 hover:text-red-700 font-medium"
+                        />
                       </form>
                     </div>
                   )}

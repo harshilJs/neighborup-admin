@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { signOut } from '@/lib/actions/auth'
+import SubmitButton from '@/components/SubmitButton'
 
 const nav = [
   { label: 'OVERVIEW', items: [
@@ -42,8 +43,17 @@ const nav = [
   ]},
 ]
 
+const allHrefs = nav.flatMap(section => section.items.map(item => item.href))
+
+function getActiveHref(pathname: string) {
+  return allHrefs
+    .filter(href => pathname === href || pathname.startsWith(href + '/'))
+    .sort((a, b) => b.length - a.length)[0]
+}
+
 export default function Sidebar() {
   const pathname = usePathname()
+  const activeHref = getActiveHref(pathname)
 
   return (
     <aside className="w-60 shrink-0 flex flex-col h-screen bg-white border-r border-gray-200 overflow-y-auto">
@@ -67,7 +77,7 @@ export default function Sidebar() {
             </p>
             <div className="space-y-0.5">
               {section.items.map(item => {
-                const active = pathname === item.href || pathname.startsWith(item.href + '/')
+                const active = item.href === activeHref
                 return (
                   <Link
                     key={item.href}
@@ -92,10 +102,12 @@ export default function Sidebar() {
       {/* Bottom */}
       <div className="px-3 py-4 border-t border-gray-200">
         <form action={signOut}>
-          <button className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm text-gray-500 hover:text-red-600 hover:bg-gray-100 w-full transition-colors">
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </button>
+          <SubmitButton
+            label="Sign Out"
+            pendingLabel="Signing out..."
+            icon={<LogOut className="w-4 h-4" />}
+            className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm text-gray-500 hover:text-red-600 hover:bg-gray-100 w-full transition-colors"
+          />
         </form>
       </div>
     </aside>

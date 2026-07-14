@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import { login } from '@/lib/actions/auth'
+import SubmitButton from '@/components/SubmitButton'
 
 const ERROR_MESSAGES: Record<string, string> = {
   not_admin: 'This account does not have admin access.',
@@ -53,12 +54,11 @@ export default async function LoginPage({
               className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md px-3 py-2 transition-colors"
-          >
-            Sign In
-          </button>
+          <SubmitButton
+            label="Sign In"
+            pendingLabel="Signing in..."
+            className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md px-3 py-2 transition-colors"
+          />
         </form>
       </div>
     </div>

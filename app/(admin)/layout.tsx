@@ -2,6 +2,7 @@ import Sidebar from '@/components/Sidebar'
 import { createClient } from '@/lib/supabase-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { signOut } from '@/lib/actions/auth'
+import SubmitButton from '@/components/SubmitButton'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -19,7 +20,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className="text-center space-y-4">
           <p className="text-gray-600 text-sm">This account doesn&apos;t have admin access.</p>
           <form action={signOut}>
-            <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">Sign out</button>
+            <SubmitButton
+              label="Sign out"
+              pendingLabel="Signing out..."
+              className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium"
+            />
           </form>
         </div>
       </div>

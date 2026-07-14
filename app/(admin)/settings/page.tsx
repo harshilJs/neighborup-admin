@@ -1,6 +1,7 @@
 import PageHeader from '@/components/PageHeader'
 import { supabaseAdmin } from '@/lib/supabase'
 import { revalidatePath } from 'next/cache'
+import SubmitButton from '@/components/SubmitButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -76,7 +77,11 @@ export default async function Page() {
                         defaultValue={JSON.stringify(row.value)}
                         className="bg-white border-gray-300 text-gray-900 text-sm rounded-md px-3 py-1.5 flex-1"
                       />
-                      <button className="text-xs text-blue-600 hover:text-blue-700 font-medium">Save</button>
+                      <SubmitButton
+                        label="Save"
+                        pendingLabel="Saving..."
+                        className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium shrink-0"
+                      />
                     </form>
                   </td>
                 </tr>

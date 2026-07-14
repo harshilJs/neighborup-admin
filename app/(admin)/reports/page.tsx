@@ -3,6 +3,7 @@ import StatusBadge from '@/components/StatusBadge'
 import { supabaseAdmin } from '@/lib/supabase'
 import { formatDateTime } from '@/lib/format'
 import { revalidatePath } from 'next/cache'
+import SubmitButton from '@/components/SubmitButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -82,12 +83,20 @@ export default async function ReportsPage() {
                       <form action={updateReportStatus}>
                         <input type="hidden" name="id" value={r.id} />
                         <input type="hidden" name="status" value="reviewed" />
-                        <button className="text-xs text-blue-600 hover:text-blue-700 font-medium">Mark Reviewed</button>
+                        <SubmitButton
+                          label="Mark Reviewed"
+                          pendingLabel="Marking..."
+                          className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium"
+                        />
                       </form>
                       <form action={updateReportStatus}>
                         <input type="hidden" name="id" value={r.id} />
                         <input type="hidden" name="status" value="resolved" />
-                        <button className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">Resolve</button>
+                        <SubmitButton
+                          label="Resolve"
+                          pendingLabel="Resolving..."
+                          className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                        />
                       </form>
                     </div>
                   )}

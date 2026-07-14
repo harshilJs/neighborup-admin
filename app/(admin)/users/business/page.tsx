@@ -3,6 +3,7 @@ import StatusBadge from '@/components/StatusBadge'
 import { supabaseAdmin } from '@/lib/supabase'
 import { formatDate, formatDateTime } from '@/lib/format'
 import { revalidatePath } from 'next/cache'
+import SubmitButton from '@/components/SubmitButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -142,12 +143,20 @@ export default async function Page() {
                         <form action={updateReviewStatus}>
                           <input type="hidden" name="id" value={r.id} />
                           <input type="hidden" name="status" value="approved" />
-                          <button className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">Approve</button>
+                          <SubmitButton
+                            label="Approve"
+                            pendingLabel="Approving..."
+                            className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+                          />
                         </form>
                         <form action={updateReviewStatus}>
                           <input type="hidden" name="id" value={r.id} />
                           <input type="hidden" name="status" value="rejected" />
-                          <button className="text-xs text-red-600 hover:text-red-700 font-medium">Reject</button>
+                          <SubmitButton
+                            label="Reject"
+                            pendingLabel="Rejecting..."
+                            className="inline-flex items-center gap-1 text-xs text-red-600 hover:text-red-700 font-medium"
+                          />
                         </form>
                       </div>
                     </td>
