@@ -29,10 +29,10 @@ export default async function KidAccountsPage() {
     <div>
       <PageHeader title="Kid Accounts" description="Minor accounts with parent linkage" />
 
-      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-800 text-gray-400 text-xs uppercase tracking-wide">
+            <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wide">
               <th className="text-left px-4 py-3 font-medium">Kid</th>
               <th className="text-left px-4 py-3 font-medium">Age</th>
               <th className="text-left px-4 py-3 font-medium">Parent</th>
@@ -43,14 +43,14 @@ export default async function KidAccountsPage() {
           <tbody>
             {error && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-red-400">
+                <td colSpan={5} className="px-4 py-10 text-center text-red-600">
                   Failed to load kid accounts: {error.message}
                 </td>
               </tr>
             )}
             {!error && kids?.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-gray-500">
+                <td colSpan={5} className="px-4 py-10 text-center text-gray-400">
                   No kid accounts yet.
                 </td>
               </tr>
@@ -58,17 +58,17 @@ export default async function KidAccountsPage() {
             {kids?.map(kid => {
               const parent = kid.parent_user_id ? parentMap.get(kid.parent_user_id) : undefined
               return (
-                <tr key={kid.id} className="border-b border-gray-800 last:border-0 hover:bg-gray-800/50">
-                  <td className="px-4 py-3 text-white font-medium">{kid.display_name ?? kid.full_name ?? 'Unnamed'}</td>
-                  <td className="px-4 py-3 text-gray-300">{kid.age ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-300">{parent?.display_name ?? parent?.full_name ?? '—'}</td>
+                <tr key={kid.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
+                  <td className="px-4 py-3 text-gray-900 font-medium">{kid.display_name ?? kid.full_name ?? 'Unnamed'}</td>
+                  <td className="px-4 py-3 text-gray-700">{kid.age ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-700">{parent?.display_name ?? parent?.full_name ?? '—'}</td>
                   <td className="px-4 py-3">
                     <StatusBadge
                       label={kid.verification_status ?? 'pending'}
                       color={VERIFICATION_COLOR[kid.verification_status ?? 'pending'] ?? 'gray'}
                     />
                   </td>
-                  <td className="px-4 py-3 text-gray-400">{formatDate(kid.created_at)}</td>
+                  <td className="px-4 py-3 text-gray-500">{formatDate(kid.created_at)}</td>
                 </tr>
               )
             })}

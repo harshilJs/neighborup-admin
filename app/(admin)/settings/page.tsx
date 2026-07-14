@@ -40,11 +40,11 @@ export default async function Page() {
       <PageHeader title="Settings" description="App config, feature flags, and admin roles" />
 
       <div className="mb-8">
-        <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide mb-4">App Settings</h2>
-        <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">App Settings</h2>
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-800 text-gray-400 text-xs uppercase tracking-wide">
+              <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wide">
                 <th className="text-left px-4 py-3 font-medium">Key</th>
                 <th className="text-left px-4 py-3 font-medium">Value</th>
               </tr>
@@ -52,21 +52,21 @@ export default async function Page() {
             <tbody>
               {settingsError && (
                 <tr>
-                  <td colSpan={2} className="px-4 py-10 text-center text-red-400">
+                  <td colSpan={2} className="px-4 py-10 text-center text-red-600">
                     Failed to load settings: {settingsError.message}
                   </td>
                 </tr>
               )}
               {!settingsError && settings?.length === 0 && (
                 <tr>
-                  <td colSpan={2} className="px-4 py-10 text-center text-gray-500">
+                  <td colSpan={2} className="px-4 py-10 text-center text-gray-400">
                     No settings configured.
                   </td>
                 </tr>
               )}
               {settings?.map(row => (
-                <tr key={row.id} className="border-b border-gray-800 last:border-0 hover:bg-gray-800/50">
-                  <td className="px-4 py-3 font-mono text-sm text-gray-300">{row.key}</td>
+                <tr key={row.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
+                  <td className="px-4 py-3 font-mono text-sm text-gray-700">{row.key}</td>
                   <td className="px-4 py-3">
                     <form action={updateSetting} className="flex items-center gap-2">
                       <input type="hidden" name="id" value={row.id} />
@@ -74,9 +74,9 @@ export default async function Page() {
                         type="text"
                         name="value"
                         defaultValue={JSON.stringify(row.value)}
-                        className="bg-gray-900 border-gray-700 text-white text-sm rounded-md px-3 py-1.5 flex-1"
+                        className="bg-white border-gray-300 text-gray-900 text-sm rounded-md px-3 py-1.5 flex-1"
                       />
-                      <button className="text-xs text-blue-400 hover:text-blue-300 font-medium">Save</button>
+                      <button className="text-xs text-blue-600 hover:text-blue-700 font-medium">Save</button>
                     </form>
                   </td>
                 </tr>
@@ -87,11 +87,11 @@ export default async function Page() {
       </div>
 
       <div>
-        <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide mb-4">Admins</h2>
-        <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Admins</h2>
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-800 text-gray-400 text-xs uppercase tracking-wide">
+              <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wide">
                 <th className="text-left px-4 py-3 font-medium">Name</th>
                 <th className="text-left px-4 py-3 font-medium">Email</th>
                 <th className="text-left px-4 py-3 font-medium">Account Type</th>
@@ -100,23 +100,23 @@ export default async function Page() {
             <tbody>
               {adminsError && (
                 <tr>
-                  <td colSpan={3} className="px-4 py-10 text-center text-red-400">
+                  <td colSpan={3} className="px-4 py-10 text-center text-red-600">
                     Failed to load admins: {adminsError.message}
                   </td>
                 </tr>
               )}
               {!adminsError && admins?.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="px-4 py-10 text-center text-gray-500">
+                  <td colSpan={3} className="px-4 py-10 text-center text-gray-400">
                     No admin users found.
                   </td>
                 </tr>
               )}
               {admins?.map(admin => (
-                <tr key={admin.id} className="border-b border-gray-800 last:border-0 hover:bg-gray-800/50">
-                  <td className="px-4 py-3 text-gray-300">{admin.full_name ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-400">{admin.email ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-300">{admin.account_type}</td>
+                <tr key={admin.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
+                  <td className="px-4 py-3 text-gray-700">{admin.full_name ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-500">{admin.email ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-700">{admin.account_type}</td>
                 </tr>
               ))}
             </tbody>

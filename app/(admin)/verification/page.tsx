@@ -42,10 +42,10 @@ export default async function Page() {
     <div>
       <PageHeader title="Verification Management" description="KYC sessions, mailed codes, manual overrides" />
 
-      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-800 text-gray-400 text-xs uppercase tracking-wide">
+            <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wide">
               <th className="text-left px-4 py-3 font-medium">Applicant</th>
               <th className="text-left px-4 py-3 font-medium">Method</th>
               <th className="text-left px-4 py-3 font-medium">Location</th>
@@ -57,14 +57,14 @@ export default async function Page() {
           <tbody>
             {error && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-red-400">
+                <td colSpan={6} className="px-4 py-10 text-center text-red-600">
                   Failed to load verification requests: {error.message}
                 </td>
               </tr>
             )}
             {!error && requests?.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-gray-500">
+                <td colSpan={6} className="px-4 py-10 text-center text-gray-400">
                   No verification requests yet.
                 </td>
               </tr>
@@ -74,26 +74,26 @@ export default async function Page() {
               const applicant = r.full_name ?? profile?.full_name ?? profile?.email ?? '—'
               const location = r.city && r.state ? `${r.city}, ${r.state}` : r.city ?? r.state ?? '—'
               return (
-                <tr key={r.id} className="border-b border-gray-800 last:border-0 hover:bg-gray-800/50">
-                  <td className="px-4 py-3 text-gray-300">{applicant}</td>
-                  <td className="px-4 py-3 text-gray-400">{r.verification_method ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-400">{location}</td>
+                <tr key={r.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
+                  <td className="px-4 py-3 text-gray-700">{applicant}</td>
+                  <td className="px-4 py-3 text-gray-500">{r.verification_method ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-500">{location}</td>
                   <td className="px-4 py-3">
                     <StatusBadge label={r.status} color={STATUS_COLOR[r.status] ?? 'gray'} />
                   </td>
-                  <td className="px-4 py-3 text-gray-400">{formatDateTime(r.created_at)}</td>
+                  <td className="px-4 py-3 text-gray-500">{formatDateTime(r.created_at)}</td>
                   <td className="px-4 py-3">
                     {r.status === 'pending' && (
                       <div className="flex items-center gap-3">
                         <form action={updateVerificationStatus}>
                           <input type="hidden" name="id" value={r.id} />
                           <input type="hidden" name="status" value="approved" />
-                          <button className="text-xs text-emerald-400 hover:text-emerald-300 font-medium">Approve</button>
+                          <button className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">Approve</button>
                         </form>
                         <form action={updateVerificationStatus}>
                           <input type="hidden" name="id" value={r.id} />
                           <input type="hidden" name="status" value="rejected" />
-                          <button className="text-xs text-red-400 hover:text-red-300 font-medium">Reject</button>
+                          <button className="text-xs text-red-600 hover:text-red-700 font-medium">Reject</button>
                         </form>
                       </div>
                     )}

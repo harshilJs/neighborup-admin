@@ -34,10 +34,10 @@ export default async function Page() {
     <div>
       <PageHeader title="Payment History" description="Stripe transactions, refunds, and revenue" />
 
-      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-800 text-gray-400 text-xs uppercase tracking-wide">
+            <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wide">
               <th className="text-left px-4 py-3 font-medium">Customer</th>
               <th className="text-left px-4 py-3 font-medium">Amount</th>
               <th className="text-left px-4 py-3 font-medium">Payment Status</th>
@@ -48,14 +48,14 @@ export default async function Page() {
           <tbody>
             {error && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-red-400">
+                <td colSpan={5} className="px-4 py-10 text-center text-red-600">
                   Failed to load payments: {error.message}
                 </td>
               </tr>
             )}
             {!error && orders?.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-gray-500">
+                <td colSpan={5} className="px-4 py-10 text-center text-gray-400">
                   No payments recorded yet.
                 </td>
               </tr>
@@ -65,14 +65,14 @@ export default async function Page() {
               const profile = userId ? profileMap.get(userId) : undefined
               const customerLabel = profile?.full_name ?? profile?.email ?? order.customer_id ?? '—'
               return (
-                <tr key={order.id} className="border-b border-gray-800 last:border-0 hover:bg-gray-800/50">
-                  <td className="px-4 py-3 text-gray-300">{customerLabel}</td>
-                  <td className="px-4 py-3 text-gray-300">{formatCurrency(order.amount_total, order.currency)}</td>
-                  <td className="px-4 py-3 text-gray-400 text-xs">{order.payment_status}</td>
+                <tr key={order.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
+                  <td className="px-4 py-3 text-gray-700">{customerLabel}</td>
+                  <td className="px-4 py-3 text-gray-700">{formatCurrency(order.amount_total, order.currency)}</td>
+                  <td className="px-4 py-3 text-gray-500 text-xs">{order.payment_status}</td>
                   <td className="px-4 py-3">
                     <StatusBadge label={order.status} color={ORDER_STATUS_COLOR[order.status] ?? 'gray'} />
                   </td>
-                  <td className="px-4 py-3 text-gray-400">{formatDateTime(order.created_at)}</td>
+                  <td className="px-4 py-3 text-gray-500">{formatDateTime(order.created_at)}</td>
                 </tr>
               )
             })}

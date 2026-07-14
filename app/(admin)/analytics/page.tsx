@@ -32,7 +32,7 @@ export default async function Page() {
     <div>
       <PageHeader title="Analytics" description="Growth, engagement, and retention metrics" />
 
-      <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide mb-4">Platform Growth</h2>
+      <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Platform Growth</h2>
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <StatCard label="Total Users" value={totalUsers.count ?? '—'} icon={Users} color="blue" />
         <StatCard label="Neighbors" value={neighbors.count ?? '—'} icon={User} color="blue" />
@@ -41,7 +41,7 @@ export default async function Page() {
         <StatCard label="Kid Accounts" value={kidAccounts.count ?? '—'} icon={Baby} color="amber" />
       </div>
 
-      <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide mb-4">Content</h2>
+      <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Content</h2>
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard label="Total Posts" value={totalPosts.count ?? '—'} icon={FileText} color="blue" />
         <StatCard label="Total Groups" value={totalGroups.count ?? '—'} icon={Users2} color="blue" />

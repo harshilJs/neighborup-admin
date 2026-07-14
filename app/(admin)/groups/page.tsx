@@ -22,10 +22,10 @@ export default async function GroupsPage() {
     <div>
       <PageHeader title="Groups" description="Community groups management" />
 
-      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-800 text-gray-400 text-xs uppercase tracking-wide">
+            <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wide">
               <th className="text-left px-4 py-3 font-medium">Group</th>
               <th className="text-left px-4 py-3 font-medium">Category</th>
               <th className="text-left px-4 py-3 font-medium">Members</th>
@@ -37,14 +37,14 @@ export default async function GroupsPage() {
           <tbody>
             {error && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-red-400">
+                <td colSpan={6} className="px-4 py-10 text-center text-red-600">
                   Failed to load groups: {error.message}
                 </td>
               </tr>
             )}
             {!error && groups?.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-gray-500">
+                <td colSpan={6} className="px-4 py-10 text-center text-gray-400">
                   No groups yet.
                 </td>
               </tr>
@@ -52,15 +52,15 @@ export default async function GroupsPage() {
             {groups?.map(group => {
               const creator = group.created_by ? profileMap.get(group.created_by) : undefined
               return (
-                <tr key={group.id} className="border-b border-gray-800 last:border-0 hover:bg-gray-800/50">
+                <tr key={group.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
                   <td className="px-4 py-3">
-                    <p className="text-white font-medium">{group.name}</p>
+                    <p className="text-gray-900 font-medium">{group.name}</p>
                     {group.description && (
-                      <p className="text-gray-500 text-xs truncate max-w-xs">{group.description}</p>
+                      <p className="text-gray-400 text-xs truncate max-w-xs">{group.description}</p>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-gray-300">{group.category ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-300">{group.member_count ?? 0}</td>
+                  <td className="px-4 py-3 text-gray-700">{group.category ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-700">{group.member_count ?? 0}</td>
                   <td className="px-4 py-3">
                     {group.is_private ? (
                       <StatusBadge label="Private" color="purple" />
@@ -68,8 +68,8 @@ export default async function GroupsPage() {
                       <StatusBadge label="Public" color="gray" />
                     )}
                   </td>
-                  <td className="px-4 py-3 text-gray-300">{creator?.full_name ?? creator?.email ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-400">{formatDate(group.created_at)}</td>
+                  <td className="px-4 py-3 text-gray-700">{creator?.full_name ?? creator?.email ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-500">{formatDate(group.created_at)}</td>
                 </tr>
               )
             })}

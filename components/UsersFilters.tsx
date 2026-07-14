@@ -24,7 +24,7 @@ export default function UsersFilters() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
         <Input
           placeholder="Search by name or email..."
-          className="pl-9 bg-gray-900 border-gray-700 text-white placeholder:text-gray-500"
+          className="pl-9 bg-white border-gray-300 text-gray-900 placeholder:text-gray-400"
           value={q}
           onChange={e => setQ(e.target.value)}
           onKeyDown={e => {
@@ -36,7 +36,7 @@ export default function UsersFilters() {
       <select
         defaultValue={searchParams.get('type') ?? ''}
         onChange={e => update('type', e.target.value)}
-        className="bg-gray-900 border border-gray-700 text-gray-300 text-sm rounded-md px-3 py-2"
+        className="bg-white border border-gray-300 text-gray-700 text-sm rounded-md px-3 py-2"
       >
         <option value="">All Account Types</option>
         <option value="regular">Neighbor</option>
@@ -47,7 +47,7 @@ export default function UsersFilters() {
       <select
         defaultValue={searchParams.get('verification') ?? ''}
         onChange={e => update('verification', e.target.value)}
-        className="bg-gray-900 border border-gray-700 text-gray-300 text-sm rounded-md px-3 py-2"
+        className="bg-white border border-gray-300 text-gray-700 text-sm rounded-md px-3 py-2"
       >
         <option value="">All Verification</option>
         <option value="approved">Verified</option>
@@ -57,7 +57,7 @@ export default function UsersFilters() {
       <select
         defaultValue={searchParams.get('subscription') ?? ''}
         onChange={e => update('subscription', e.target.value)}
-        className="bg-gray-900 border border-gray-700 text-gray-300 text-sm rounded-md px-3 py-2"
+        className="bg-white border border-gray-300 text-gray-700 text-sm rounded-md px-3 py-2"
       >
         <option value="">All Subscriptions</option>
         <option value="active">Active</option>

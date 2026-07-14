@@ -48,40 +48,40 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide mb-4">Recent Reports</h2>
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-5">
+          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Recent Reports</h2>
           {recentReports.data?.length ? (
             <div className="space-y-3">
               {recentReports.data.map(r => (
                 <div key={r.id} className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-sm text-gray-200 truncate">{r.reason}</p>
-                    <p className="text-xs text-gray-500">{formatDateTime(r.created_at)}</p>
+                    <p className="text-sm text-gray-800 truncate">{r.reason}</p>
+                    <p className="text-xs text-gray-400">{formatDateTime(r.created_at)}</p>
                   </div>
                   <StatusBadge label={r.status} color={REPORT_STATUS_COLOR[r.status] ?? 'gray'} />
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-sm">No reports yet.</p>
+            <p className="text-gray-400 text-sm">No reports yet.</p>
           )}
         </div>
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-5">
-          <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide mb-4">Recent Sign-ups</h2>
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-5">
+          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Recent Sign-ups</h2>
           {recentSignups.data?.length ? (
             <div className="space-y-3">
               {recentSignups.data.map(u => (
                 <div key={u.id} className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-sm text-gray-200 truncate">{u.display_name ?? u.full_name ?? 'Unnamed'}</p>
-                    <p className="text-xs text-gray-500 truncate">{u.email}</p>
+                    <p className="text-sm text-gray-800 truncate">{u.display_name ?? u.full_name ?? 'Unnamed'}</p>
+                    <p className="text-xs text-gray-400 truncate">{u.email}</p>
                   </div>
-                  <p className="text-xs text-gray-500 shrink-0">{formatDateTime(u.created_at)}</p>
+                  <p className="text-xs text-gray-400 shrink-0">{formatDateTime(u.created_at)}</p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-sm">No sign-ups yet.</p>
+            <p className="text-gray-400 text-sm">No sign-ups yet.</p>
           )}
         </div>
       </div>

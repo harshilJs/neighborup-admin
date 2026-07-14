@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { login } from '@/lib/actions/auth'
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -13,26 +14,24 @@ export default async function LoginPage({
   const { error } = await searchParams
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
-        <div className="flex items-center gap-2.5 justify-center mb-8">
-          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
-            N
-          </div>
-          <div>
-            <p className="text-white font-semibold text-sm leading-tight">NeighborUp</p>
+        <div className="flex flex-col items-center gap-2 mb-8">
+          <Image src="/logo-full.png" alt="NeighborUp" width={64} height={64} priority className="w-16 h-16 rounded-2xl" />
+          <div className="text-center">
+            <p className="text-gray-900 font-semibold text-sm leading-tight">NeighborUp</p>
             <p className="text-gray-500 text-xs">Admin Panel</p>
           </div>
         </div>
 
-        <form action={login} className="bg-gray-900 border border-gray-800 rounded-xl p-6 space-y-4">
+        <form action={login} className="bg-white border border-gray-200 rounded-xl p-6 space-y-4 shadow-sm">
           {error && (
-            <p className="text-red-400 text-sm bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2">
+            <p className="text-red-600 text-sm bg-red-50 border border-red-100 rounded-md px-3 py-2">
               {ERROR_MESSAGES[error] ?? error}
             </p>
           )}
           <div>
-            <label className="block text-gray-400 text-xs font-medium uppercase tracking-wide mb-1.5">
+            <label className="block text-gray-500 text-xs font-medium uppercase tracking-wide mb-1.5">
               Email
             </label>
             <input
@@ -40,23 +39,23 @@ export default async function LoginPage({
               name="email"
               required
               autoFocus
-              className="w-full bg-gray-950 border border-gray-700 text-white text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-gray-400 text-xs font-medium uppercase tracking-wide mb-1.5">
+            <label className="block text-gray-500 text-xs font-medium uppercase tracking-wide mb-1.5">
               Password
             </label>
             <input
               type="password"
               name="password"
               required
-              className="w-full bg-gray-950 border border-gray-700 text-white text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-md px-3 py-2 transition-colors"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md px-3 py-2 transition-colors"
           >
             Sign In
           </button>

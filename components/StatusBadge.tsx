@@ -1,10 +1,10 @@
 const colors = {
-  gray: 'bg-gray-500/10 text-gray-400',
-  blue: 'bg-blue-500/10 text-blue-400',
-  green: 'bg-emerald-500/10 text-emerald-400',
-  amber: 'bg-amber-500/10 text-amber-400',
-  red: 'bg-red-500/10 text-red-400',
-  purple: 'bg-purple-500/10 text-purple-400',
+  gray: 'bg-gray-100 text-gray-600',
+  blue: 'bg-blue-50 text-blue-700',
+  green: 'bg-emerald-50 text-emerald-700',
+  amber: 'bg-amber-50 text-amber-700',
+  red: 'bg-red-50 text-red-700',
+  purple: 'bg-purple-50 text-purple-700',
 }
 
 interface Props {

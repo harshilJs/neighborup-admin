@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Users, ShieldCheck, Flag, FileText,
@@ -45,13 +46,13 @@ export default function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="w-60 shrink-0 flex flex-col h-screen bg-gray-950 border-r border-gray-800 overflow-y-auto">
+    <aside className="w-60 shrink-0 flex flex-col h-screen bg-white border-r border-gray-200 overflow-y-auto">
       {/* Logo */}
-      <div className="px-5 py-5 border-b border-gray-800">
+      <div className="px-5 py-5 border-b border-gray-200">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-xs">N</div>
+          <Image src="/logo-mark.png" alt="" width={28} height={28} className="w-7 h-7 rounded-lg shrink-0" />
           <div>
-            <p className="text-white font-semibold text-sm leading-tight">NeighborUp</p>
+            <p className="text-gray-900 font-semibold text-sm leading-tight">NeighborUp</p>
             <p className="text-gray-500 text-xs">Admin Panel</p>
           </div>
         </div>
@@ -61,7 +62,7 @@ export default function Sidebar() {
       <nav className="flex-1 px-3 py-4 space-y-5">
         {nav.map(section => (
           <div key={section.label}>
-            <p className="text-gray-600 text-[10px] font-semibold tracking-widest uppercase px-2 mb-1.5">
+            <p className="text-gray-400 text-[10px] font-semibold tracking-widest uppercase px-2 mb-1.5">
               {section.label}
             </p>
             <div className="space-y-0.5">
@@ -74,8 +75,8 @@ export default function Sidebar() {
                     className={cn(
                       'flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm transition-colors',
                       active
-                        ? 'bg-blue-600/20 text-blue-400 font-medium'
-                        : 'text-gray-400 hover:text-gray-100 hover:bg-gray-800'
+                        ? 'bg-blue-50 text-blue-600 font-medium'
+                        : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100'
                     )}
                   >
                     <item.icon className="w-4 h-4 shrink-0" />
@@ -89,9 +90,9 @@ export default function Sidebar() {
       </nav>
 
       {/* Bottom */}
-      <div className="px-3 py-4 border-t border-gray-800">
+      <div className="px-3 py-4 border-t border-gray-200">
         <form action={signOut}>
-          <button className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm text-gray-400 hover:text-red-400 hover:bg-gray-800 w-full transition-colors">
+          <button className="flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm text-gray-500 hover:text-red-600 hover:bg-gray-100 w-full transition-colors">
             <LogOut className="w-4 h-4" />
             Sign Out
           </button>

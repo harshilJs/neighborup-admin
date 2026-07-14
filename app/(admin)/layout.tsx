@@ -15,11 +15,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   if (!user || !profile?.is_admin) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-950 text-white">
+      <div className="flex items-center justify-center h-screen bg-gray-50 text-gray-900">
         <div className="text-center space-y-4">
-          <p className="text-gray-300 text-sm">This account doesn&apos;t have admin access.</p>
+          <p className="text-gray-600 text-sm">This account doesn&apos;t have admin access.</p>
           <form action={signOut}>
-            <button className="text-sm text-blue-400 hover:text-blue-300 font-medium">Sign out</button>
+            <button className="text-sm text-blue-600 hover:text-blue-700 font-medium">Sign out</button>
           </form>
         </div>
       </div>

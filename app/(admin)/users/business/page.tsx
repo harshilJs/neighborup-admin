@@ -53,11 +53,11 @@ export default async function Page() {
     <div>
       <PageHeader title="Business & Official Accounts" description="Manage elevated account types" />
 
-      <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide mb-4">Accounts</h2>
-      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden mb-8">
+      <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Accounts</h2>
+      <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-8">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-800 text-gray-400 text-xs uppercase tracking-wide">
+            <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wide">
               <th className="text-left px-4 py-3 font-medium">Name</th>
               <th className="text-left px-4 py-3 font-medium">Type</th>
               <th className="text-left px-4 py-3 font-medium">Email</th>
@@ -69,53 +69,53 @@ export default async function Page() {
           <tbody>
             {accountsError && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-red-400">
+                <td colSpan={6} className="px-4 py-10 text-center text-red-600">
                   Failed to load accounts: {accountsError.message}
                 </td>
               </tr>
             )}
             {!accountsError && accounts?.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-gray-500">
+                <td colSpan={6} className="px-4 py-10 text-center text-gray-400">
                   No business or official accounts yet.
                 </td>
               </tr>
             )}
             {accounts?.map(a => (
-              <tr key={a.id} className="border-b border-gray-800 last:border-0 hover:bg-gray-800/50">
-                <td className="px-4 py-3 text-white font-medium">{a.org_name ?? a.display_name ?? a.full_name ?? 'Unnamed'}</td>
+              <tr key={a.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
+                <td className="px-4 py-3 text-gray-900 font-medium">{a.org_name ?? a.display_name ?? a.full_name ?? 'Unnamed'}</td>
                 <td className="px-4 py-3">
                   <StatusBadge label={a.account_type} color={TYPE_COLOR[a.account_type] ?? 'gray'} />
                 </td>
-                <td className="px-4 py-3 text-gray-400">{a.official_email ?? a.email ?? '—'}</td>
-                <td className="px-4 py-3 text-gray-300">{a.business_category ?? '—'}</td>
+                <td className="px-4 py-3 text-gray-500">{a.official_email ?? a.email ?? '—'}</td>
+                <td className="px-4 py-3 text-gray-700">{a.business_category ?? '—'}</td>
                 <td className="px-4 py-3">
                   <StatusBadge
                     label={a.verification_status ?? 'pending'}
                     color={VERIFICATION_COLOR[a.verification_status ?? 'pending'] ?? 'gray'}
                   />
                 </td>
-                <td className="px-4 py-3 text-gray-400">{formatDate(a.created_at)}</td>
+                <td className="px-4 py-3 text-gray-500">{formatDate(a.created_at)}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      <h2 className="text-sm font-semibold text-gray-300 uppercase tracking-wide mb-4">Pending Reviews</h2>
+      <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Pending Reviews</h2>
       {reviewsError ? (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-10 text-center">
-          <p className="text-red-400 text-sm">Failed to load pending reviews: {reviewsError.message}</p>
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-10 text-center">
+          <p className="text-red-600 text-sm">Failed to load pending reviews: {reviewsError.message}</p>
         </div>
       ) : reviews?.length === 0 ? (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-10 text-center">
-          <p className="text-gray-500 text-sm">No pending reviews.</p>
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-10 text-center">
+          <p className="text-gray-400 text-sm">No pending reviews.</p>
         </div>
       ) : (
-        <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-800 text-gray-400 text-xs uppercase tracking-wide">
+              <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wide">
                 <th className="text-left px-4 py-3 font-medium">Applicant</th>
                 <th className="text-left px-4 py-3 font-medium">Type</th>
                 <th className="text-left px-4 py-3 font-medium">Org Name</th>
@@ -127,27 +127,27 @@ export default async function Page() {
               {reviews?.map(r => {
                 const profile = reviewProfileMap.get(r.user_id)
                 return (
-                  <tr key={r.id} className="border-b border-gray-800 last:border-0 hover:bg-gray-800/50">
+                  <tr key={r.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
                     <td className="px-4 py-3">
-                      <p className="text-gray-200">{profile?.full_name ?? r.org_name ?? 'Unknown'}</p>
-                      <p className="text-gray-500 text-xs">{profile?.email ?? r.official_email ?? '—'}</p>
+                      <p className="text-gray-800">{profile?.full_name ?? r.org_name ?? 'Unknown'}</p>
+                      <p className="text-gray-400 text-xs">{profile?.email ?? r.official_email ?? '—'}</p>
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge label={r.account_type} color={TYPE_COLOR[r.account_type] ?? 'gray'} />
                     </td>
-                    <td className="px-4 py-3 text-gray-300">{r.org_name ?? '—'}</td>
-                    <td className="px-4 py-3 text-gray-400">{formatDateTime(r.submitted_at)}</td>
+                    <td className="px-4 py-3 text-gray-700">{r.org_name ?? '—'}</td>
+                    <td className="px-4 py-3 text-gray-500">{formatDateTime(r.submitted_at)}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         <form action={updateReviewStatus}>
                           <input type="hidden" name="id" value={r.id} />
                           <input type="hidden" name="status" value="approved" />
-                          <button className="text-xs text-emerald-400 hover:text-emerald-300 font-medium">Approve</button>
+                          <button className="text-xs text-emerald-600 hover:text-emerald-700 font-medium">Approve</button>
                         </form>
                         <form action={updateReviewStatus}>
                           <input type="hidden" name="id" value={r.id} />
                           <input type="hidden" name="status" value="rejected" />
-                          <button className="text-xs text-red-400 hover:text-red-300 font-medium">Reject</button>
+                          <button className="text-xs text-red-600 hover:text-red-700 font-medium">Reject</button>
                         </form>
                       </div>
                     </td>

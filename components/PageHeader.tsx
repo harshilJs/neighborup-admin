@@ -8,8 +8,8 @@ export default function PageHeader({ title, description, actions }: Props) {
   return (
     <div className="flex items-start justify-between gap-4 mb-6">
       <div>
-        <h1 className="text-xl font-bold text-white">{title}</h1>
-        {description && <p className="text-gray-400 text-sm mt-0.5">{description}</p>}
+        <h1 className="text-xl font-bold text-gray-900">{title}</h1>
+        {description && <p className="text-gray-500 text-sm mt-0.5">{description}</p>}
       </div>
       {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
     </div>
