@@ -1,0 +1,80 @@
+import PageHeader from '@/components/PageHeader'
+import StatusBadge from '@/components/StatusBadge'
+import { supabaseAdmin } from '@/lib/supabase'
+import { formatDate } from '@/lib/format'
+
+export const dynamic = 'force-dynamic'
+
+const VERIFICATION_COLOR: Record<string, 'green' | 'amber' | 'red'> = {
+  approved: 'green',
+  pending: 'amber',
+  rejected: 'red',
+}
+
+export default async function KidAccountsPage() {
+  const { data: kids, error } = await supabaseAdmin
+    .from('profiles')
+    .select('id, full_name, display_name, age, date_of_birth, is_minor, parent_user_id, verification_status, created_at')
+    .eq('account_type', 'kid')
+    .order('created_at', { ascending: false })
+    .limit(100)
+
+  const parentIds = Array.from(new Set((kids ?? []).map(k => k.parent_user_id).filter(Boolean)))
+  const { data: parents } = parentIds.length
+    ? await supabaseAdmin.from('profiles').select('id, full_name, display_name').in('id', parentIds)
+    : { data: [] as { id: string; full_name: string | null; display_name: string | null }[] }
+  const parentMap = new Map((parents ?? []).map(p => [p.id, p]))
+
+  return (
+    <div>
+      <PageHeader title="Kid Accounts" description="Minor accounts with parent linkage" />
+
+      <div className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-800 text-gray-400 text-xs uppercase tracking-wide">
+              <th className="text-left px-4 py-3 font-medium">Kid</th>
+              <th className="text-left px-4 py-3 font-medium">Age</th>
+              <th className="text-left px-4 py-3 font-medium">Parent</th>
+              <th className="text-left px-4 py-3 font-medium">Verification</th>
+              <th className="text-left px-4 py-3 font-medium">Joined</th>
+            </tr>
+          </thead>
+          <tbody>
+            {error && (
+              <tr>
+                <td colSpan={5} className="px-4 py-10 text-center text-red-400">
+                  Failed to load kid accounts: {error.message}
+                </td>
+              </tr>
+            )}
+            {!error && kids?.length === 0 && (
+              <tr>
+                <td colSpan={5} className="px-4 py-10 text-center text-gray-500">
+                  No kid accounts yet.
+                </td>
+              </tr>
+            )}
+            {kids?.map(kid => {
+              const parent = kid.parent_user_id ? parentMap.get(kid.parent_user_id) : undefined
+              return (
+                <tr key={kid.id} className="border-b border-gray-800 last:border-0 hover:bg-gray-800/50">
+                  <td className="px-4 py-3 text-white font-medium">{kid.display_name ?? kid.full_name ?? 'Unnamed'}</td>
+                  <td className="px-4 py-3 text-gray-300">{kid.age ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-300">{parent?.display_name ?? parent?.full_name ?? '—'}</td>
+                  <td className="px-4 py-3">
+                    <StatusBadge
+                      label={kid.verification_status ?? 'pending'}
+                      color={VERIFICATION_COLOR[kid.verification_status ?? 'pending'] ?? 'gray'}
+                    />
+                  </td>
+                  <td className="px-4 py-3 text-gray-400">{formatDate(kid.created_at)}</td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
