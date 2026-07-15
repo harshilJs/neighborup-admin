@@ -2,8 +2,11 @@ import PageHeader from '@/components/PageHeader'
 import StatusBadge from '@/components/StatusBadge'
 import BusinessReviewDetailModal from '@/components/BusinessReviewDetailModal'
 import BusinessAccountActionsMenu from '@/components/BusinessAccountActionsMenu'
+import DeactivatedToggle from '@/components/DeactivatedToggle'
+import PendingOverlay from '@/components/PendingOverlay'
+import { NavPendingProvider } from '@/lib/nav-pending-context'
 import { supabaseAdmin } from '@/lib/supabase'
-import { formatDate, formatDateTime } from '@/lib/format'
+import { formatDate, formatDateTime, firstNonEmpty } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,16 +21,28 @@ const VERIFICATION_COLOR: Record<string, 'green' | 'amber' | 'red'> = {
   rejected: 'red',
 }
 
-export default async function Page() {
-  const { data: accounts, error: accountsError } = await supabaseAdmin
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>
+}) {
+  const { status } = await searchParams
+  const showingDeactivated = status === 'deactivated'
+
+  let accountsQuery = supabaseAdmin
     .from('profiles')
     .select(
-      'id, full_name, display_name, org_name, official_email, email, business_category, business_description, business_phone, business_website, business_address, account_type, verification_status, subscription_status, created_at'
+      'id, full_name, display_name, org_name, official_email, email, business_category, business_description, business_phone, business_website, business_address, account_type, verification_status, subscription_status, deleted_at, created_at'
     )
     .in('account_type', ['business', 'official'])
-    .is('deleted_at', null)
     .order('created_at', { ascending: false })
     .limit(100)
+
+  accountsQuery = showingDeactivated
+    ? accountsQuery.not('deleted_at', 'is', null)
+    : accountsQuery.is('deleted_at', null)
+
+  const { data: accounts, error: accountsError } = await accountsQuery
 
   interface AccountReview {
     id: string
@@ -70,10 +85,16 @@ export default async function Page() {
   const reviewProfileMap = new Map((reviewProfiles ?? []).map(p => [p.id, p]))
 
   return (
-    <div>
-      <PageHeader title="Business & Official Accounts" description="Manage elevated account types" />
+    <NavPendingProvider>
+      <div>
+      <PageHeader
+        title="Business & Official Accounts"
+        description="Manage elevated account types"
+        actions={<DeactivatedToggle />}
+      />
 
       <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Accounts</h2>
+      <PendingOverlay>
       <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-8">
         <table className="w-full text-sm">
           <thead>
@@ -104,11 +125,11 @@ export default async function Page() {
             )}
             {visibleAccounts.map(a => (
               <tr key={a.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
-                <td className="px-4 py-3 text-gray-900 font-medium">{a.org_name ?? a.display_name ?? a.full_name ?? 'Unnamed'}</td>
+                <td className="px-4 py-3 text-gray-900 font-medium">{firstNonEmpty(a.org_name, a.display_name, a.full_name) ?? 'Unnamed'}</td>
                 <td className="px-4 py-3">
                   <StatusBadge label={a.account_type} color={TYPE_COLOR[a.account_type] ?? 'gray'} />
                 </td>
-                <td className="px-4 py-3 text-gray-500">{a.official_email ?? a.email ?? '—'}</td>
+                <td className="px-4 py-3 text-gray-500">{firstNonEmpty(a.official_email, a.email) ?? '—'}</td>
                 <td className="px-4 py-3 text-gray-700">{a.business_category ?? '—'}</td>
                 <td className="px-4 py-3">
                   <StatusBadge
@@ -121,7 +142,7 @@ export default async function Page() {
                   <BusinessAccountActionsMenu
                     account={a}
                     review={latestReviewByUser.get(a.id) ?? null}
-                    applicantLabel={a.org_name ?? a.display_name ?? a.full_name ?? 'Unnamed'}
+                    applicantLabel={firstNonEmpty(a.org_name, a.display_name, a.full_name) ?? 'Unnamed'}
                   />
                 </td>
               </tr>
@@ -129,6 +150,7 @@ export default async function Page() {
           </tbody>
         </table>
       </div>
+      </PendingOverlay>
 
       <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Pending Reviews</h2>
       {reviewsError ? (
@@ -157,8 +179,8 @@ export default async function Page() {
                 return (
                   <tr key={r.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
                     <td className="px-4 py-3">
-                      <p className="text-gray-800">{profile?.full_name ?? r.org_name ?? 'Unknown'}</p>
-                      <p className="text-gray-400 text-xs">{profile?.email ?? r.official_email ?? '—'}</p>
+                      <p className="text-gray-800">{firstNonEmpty(profile?.full_name, r.org_name) ?? 'Unknown'}</p>
+                      <p className="text-gray-400 text-xs">{firstNonEmpty(profile?.email, r.official_email) ?? '—'}</p>
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge label={r.account_type} color={TYPE_COLOR[r.account_type] ?? 'gray'} />
@@ -168,7 +190,7 @@ export default async function Page() {
                     <td className="px-4 py-3">
                       <BusinessReviewDetailModal
                         review={r}
-                        applicantLabel={profile?.full_name ?? r.org_name ?? 'Unknown'}
+                        applicantLabel={firstNonEmpty(profile?.full_name, r.org_name) ?? 'Unknown'}
                       />
                     </td>
                   </tr>
@@ -178,6 +200,7 @@ export default async function Page() {
           </table>
         </div>
       )}
-    </div>
+      </div>
+    </NavPendingProvider>
   )
 }

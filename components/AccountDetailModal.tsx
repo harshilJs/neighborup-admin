@@ -5,7 +5,7 @@ import { X, ExternalLink } from 'lucide-react'
 import StatusBadge from '@/components/StatusBadge'
 import SubmitButton from '@/components/SubmitButton'
 import { updateReviewStatus } from '@/lib/actions/business'
-import { formatDate, formatDateTime } from '@/lib/format'
+import { formatDate, formatDateTime, firstNonEmpty } from '@/lib/format'
 
 const TYPE_COLOR: Record<string, 'blue' | 'purple'> = {
   business: 'blue',
@@ -46,7 +46,7 @@ export interface LinkedReview {
 
 const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div>
-    <p className="text-gray-500 text-xs font-medium uppercase tracking-wide mb-1">{label}</p>
+    <p className="text-left text-gray-500 text-xs font-medium uppercase tracking-wide mb-1">{label}</p>
     <div className="text-gray-800 text-sm">{children}</div>
   </div>
 )
@@ -87,7 +87,7 @@ export default function AccountDetailModal({
             />
           </div>
 
-          <Row label="Email">{account.official_email ?? account.email ?? '—'}</Row>
+          <Row label="Email">{firstNonEmpty(account.official_email, account.email) ?? '—'}</Row>
           {account.business_phone && <Row label="Phone">{account.business_phone}</Row>}
           {account.business_website && (
             <Row label="Website">

@@ -3,6 +3,7 @@
 import { X } from 'lucide-react'
 import { updateUser } from '@/lib/actions/users'
 import SubmitButton from '@/components/SubmitButton'
+import { firstNonEmpty } from '@/lib/format'
 
 export interface EditableUser {
   id: string
@@ -12,11 +13,12 @@ export interface EditableUser {
   account_type: string
   verification_status: string | null
   subscription_status: string | null
+  deleted_at?: string | null
 }
 
 const inputClass =
   'w-full bg-white border border-gray-300 text-gray-900 text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500'
-const labelClass = 'block text-gray-500 text-xs font-medium uppercase tracking-wide mb-1.5'
+const labelClass = 'block text-left text-gray-500 text-xs font-medium uppercase tracking-wide mb-1.5'
 
 export default function UserEditModal({
   user,
@@ -36,7 +38,7 @@ export default function UserEditModal({
       <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
           <h2 className="text-gray-900 font-semibold">
-            Edit {user.display_name ?? user.full_name ?? 'User'}
+            Edit {firstNonEmpty(user.display_name, user.full_name) ?? 'User'}
           </h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600" aria-label="Close">
             <X className="w-5 h-5" />

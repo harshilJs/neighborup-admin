@@ -3,6 +3,7 @@ import StatusBadge from '@/components/StatusBadge'
 import { supabaseAdmin } from '@/lib/supabase'
 import { revalidatePath } from 'next/cache'
 import SubmitButton from '@/components/SubmitButton'
+import { firstNonEmpty } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
@@ -72,7 +73,7 @@ export default async function Page() {
                   )}
                 </td>
                 <td className="px-4 py-3 text-gray-700">
-                  {profileMap.get(item.owner_id)?.full_name ?? profileMap.get(item.owner_id)?.email ?? '—'}
+                  {firstNonEmpty(profileMap.get(item.owner_id)?.full_name, profileMap.get(item.owner_id)?.email) ?? '—'}
                 </td>
                 <td className="px-4 py-3">
                   {item.reviewed_at ? (

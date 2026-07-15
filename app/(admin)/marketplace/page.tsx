@@ -1,7 +1,8 @@
 import PageHeader from '@/components/PageHeader'
 import StatusBadge from '@/components/StatusBadge'
+import ListingActionsMenu from '@/components/ListingActionsMenu'
 import { supabaseAdmin } from '@/lib/supabase'
-import { formatDate } from '@/lib/format'
+import { formatDate, firstNonEmpty } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,19 +34,20 @@ export default async function MarketplacePage() {
               <th className="text-left px-4 py-3 font-medium">Price</th>
               <th className="text-left px-4 py-3 font-medium">Status</th>
               <th className="text-left px-4 py-3 font-medium">Listed</th>
+              <th className="text-right px-4 py-3 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
             {error && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-red-600">
+                <td colSpan={6} className="px-4 py-10 text-center text-red-600">
                   Failed to load listings: {error.message}
                 </td>
               </tr>
             )}
             {!error && listings?.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-gray-400">
+                <td colSpan={6} className="px-4 py-10 text-center text-gray-400">
                   No listings yet.
                 </td>
               </tr>
@@ -59,7 +61,7 @@ export default async function MarketplacePage() {
                     <p className="text-gray-900 font-medium">{listing.title}</p>
                     {meta && <p className="text-gray-400 text-xs">{meta}</p>}
                   </td>
-                  <td className="px-4 py-3 text-gray-700">{seller?.full_name ?? seller?.email ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-700">{firstNonEmpty(seller?.full_name, seller?.email) ?? '—'}</td>
                   <td className="px-4 py-3 text-gray-700">
                     {listing.price != null ? currencyFormatter.format(listing.price) : '—'}
                   </td>
@@ -71,6 +73,9 @@ export default async function MarketplacePage() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-gray-500">{formatDate(listing.created_at)}</td>
+                  <td className="px-4 py-3 text-right">
+                    <ListingActionsMenu listing={listing} />
+                  </td>
                 </tr>
               )
             })}

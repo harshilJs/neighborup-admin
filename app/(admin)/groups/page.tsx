@@ -1,7 +1,8 @@
 import PageHeader from '@/components/PageHeader'
 import StatusBadge from '@/components/StatusBadge'
+import GroupActionsMenu from '@/components/GroupActionsMenu'
 import { supabaseAdmin } from '@/lib/supabase'
-import { formatDate } from '@/lib/format'
+import { formatDate, firstNonEmpty } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,19 +33,20 @@ export default async function GroupsPage() {
               <th className="text-left px-4 py-3 font-medium">Visibility</th>
               <th className="text-left px-4 py-3 font-medium">Creator</th>
               <th className="text-left px-4 py-3 font-medium">Created</th>
+              <th className="text-right px-4 py-3 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
             {error && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-red-600">
+                <td colSpan={7} className="px-4 py-10 text-center text-red-600">
                   Failed to load groups: {error.message}
                 </td>
               </tr>
             )}
             {!error && groups?.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-gray-400">
+                <td colSpan={7} className="px-4 py-10 text-center text-gray-400">
                   No groups yet.
                 </td>
               </tr>
@@ -68,8 +70,11 @@ export default async function GroupsPage() {
                       <StatusBadge label="Public" color="gray" />
                     )}
                   </td>
-                  <td className="px-4 py-3 text-gray-700">{creator?.full_name ?? creator?.email ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-700">{firstNonEmpty(creator?.full_name, creator?.email) ?? '—'}</td>
                   <td className="px-4 py-3 text-gray-500">{formatDate(group.created_at)}</td>
+                  <td className="px-4 py-3 text-right">
+                    <GroupActionsMenu group={group} />
+                  </td>
                 </tr>
               )
             })}

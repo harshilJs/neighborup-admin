@@ -2,7 +2,7 @@ import PageHeader from '@/components/PageHeader'
 import StatusBadge from '@/components/StatusBadge'
 import VerificationDetailButton from '@/components/VerificationDetailButton'
 import { supabaseAdmin } from '@/lib/supabase'
-import { formatDateTime } from '@/lib/format'
+import { formatDateTime, firstNonEmpty } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
@@ -81,7 +81,7 @@ export default async function Page() {
             )}
             {requests?.map(r => {
               const profile = profileMap.get(r.user_id)
-              const applicant = r.full_name ?? profile?.full_name ?? profile?.email ?? '—'
+              const applicant = firstNonEmpty(r.full_name, profile?.full_name, profile?.email) ?? '—'
               const location = r.city && r.state ? `${r.city}, ${r.state}` : r.city ?? r.state ?? '—'
               return (
                 <tr key={r.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">

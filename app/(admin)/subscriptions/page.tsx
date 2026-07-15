@@ -1,34 +1,11 @@
 import PageHeader from '@/components/PageHeader'
 import StatusBadge from '@/components/StatusBadge'
 import { supabaseAdmin } from '@/lib/supabase'
-import { formatDate, formatCurrency } from '@/lib/format'
-
-const STRIPE_STATUS_COLOR: Record<string, 'green' | 'red' | 'gray'> = {
-  active: 'green',
-  cancelled: 'red',
-  expired: 'gray',
-}
+import { formatDate, firstNonEmpty } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
-function capitalize(value: string | null | undefined) {
-  if (!value) return '—'
-  return value.charAt(0).toUpperCase() + value.slice(1)
-}
-
 export default async function SubscriptionsPage() {
-  const { data: subscriptions, error: subscriptionsError } = await supabaseAdmin
-    .from('subscriptions')
-    .select('id, user_id, plan_type, amount, status, current_period_end, created_at')
-    .order('created_at', { ascending: false })
-    .limit(50)
-
-  const subscriptionUserIds = Array.from(new Set((subscriptions ?? []).map(s => s.user_id).filter(Boolean)))
-  const { data: subscriptionProfiles } = subscriptionUserIds.length
-    ? await supabaseAdmin.from('profiles').select('id, full_name, email').in('id', subscriptionUserIds)
-    : { data: [] as { id: string; full_name: string | null; email: string | null }[] }
-  const subscriptionProfileMap = new Map((subscriptionProfiles ?? []).map(p => [p.id, p]))
-
   const { data: entitlements, error: entitlementsError } = await supabaseAdmin
     .from('user_entitlements')
     .select('id, user_id, entitlement, product_id, active, store, expires_at, cancel_at_period_end, last_event_type, last_event_at, source')
@@ -43,7 +20,7 @@ export default async function SubscriptionsPage() {
 
   return (
     <div>
-      <PageHeader title="Subscriptions" description="Subscriptions and purchase history across RevenueCat and Stripe" />
+      <PageHeader title="Subscriptions" description="Mobile subscription and purchase history via RevenueCat" />
 
       <div>
         <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Mobile Purchase History (RevenueCat / IAP)</h2>
@@ -78,8 +55,8 @@ export default async function SubscriptionsPage() {
                 return (
                   <tr key={e.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
                     <td className="px-4 py-3">
-                      <p className="text-gray-900 font-medium leading-tight">{profile?.full_name ?? 'Unnamed'}</p>
-                      <p className="text-gray-400 text-xs">{profile?.email ?? '—'}</p>
+                      <p className="text-gray-900 font-medium leading-tight">{firstNonEmpty(profile?.full_name) ?? 'Unnamed'}</p>
+                      <p className="text-gray-400 text-xs">{firstNonEmpty(profile?.email) ?? '—'}</p>
                     </td>
                     <td className="px-4 py-3">
                       <p className="text-gray-700">{e.product_id}</p>

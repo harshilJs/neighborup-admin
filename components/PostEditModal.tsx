@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { X } from 'lucide-react'
 import { updatePost } from '@/lib/actions/posts'
 import SubmitButton from '@/components/SubmitButton'
@@ -8,10 +9,16 @@ export interface EditablePost {
   id: string
   content: string | null
   is_business_post: boolean | null
+  image_url: string | null
+  image_urls: string[] | null
 }
 
 export default function PostEditModal({ post, onClose }: { post: EditablePost; onClose: () => void }) {
+  const initialImages = post.image_urls?.length ? post.image_urls : post.image_url ? [post.image_url] : []
+  const [images, setImages] = useState(initialImages)
+
   async function handleUpdate(formData: FormData) {
+    formData.set('image_urls', JSON.stringify(images))
     await updatePost(formData)
     onClose()
   }
@@ -30,8 +37,36 @@ export default function PostEditModal({ post, onClose }: { post: EditablePost; o
         <form action={handleUpdate} className="p-6 space-y-4">
           <input type="hidden" name="id" value={post.id} />
 
+          {images.length > 0 && (
+            <div>
+              <label className="block text-left text-gray-500 text-xs font-medium uppercase tracking-wide mb-1.5">
+                Images
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {images.map((url, i) => (
+                  <div key={url} className="relative group">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={url}
+                      alt=""
+                      className="w-full h-20 object-cover rounded-md border border-gray-200"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setImages(images.filter((_, idx) => idx !== i))}
+                      className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 transition-colors"
+                      aria-label="Remove image"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div>
-            <label className="block text-gray-500 text-xs font-medium uppercase tracking-wide mb-1.5">Content</label>
+            <label className="block text-left text-gray-500 text-xs font-medium uppercase tracking-wide mb-1.5">Content</label>
             <textarea
               name="content"
               rows={5}
@@ -41,7 +76,7 @@ export default function PostEditModal({ post, onClose }: { post: EditablePost; o
           </div>
 
           <div>
-            <label className="block text-gray-500 text-xs font-medium uppercase tracking-wide mb-1.5">Post Type</label>
+            <label className="block text-left text-gray-500 text-xs font-medium uppercase tracking-wide mb-1.5">Post Type</label>
             <select
               name="is_business_post"
               defaultValue={post.is_business_post ? 'true' : 'false'}

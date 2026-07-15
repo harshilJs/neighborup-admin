@@ -36,4 +36,19 @@ export async function softDeleteUser(formData: FormData) {
     .eq('id', id)
 
   revalidatePath('/users')
+  revalidatePath('/users/kids')
+  revalidatePath('/users/business')
+}
+
+export async function restoreUser(formData: FormData) {
+  const id = formData.get('id') as string
+
+  await supabaseAdmin
+    .from('profiles')
+    .update({ deleted_at: null })
+    .eq('id', id)
+
+  revalidatePath('/users')
+  revalidatePath('/users/kids')
+  revalidatePath('/users/business')
 }

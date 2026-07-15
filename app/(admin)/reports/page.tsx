@@ -1,9 +1,8 @@
 import PageHeader from '@/components/PageHeader'
 import StatusBadge from '@/components/StatusBadge'
+import ReportActionsMenu from '@/components/ReportActionsMenu'
 import { supabaseAdmin } from '@/lib/supabase'
-import { formatDateTime } from '@/lib/format'
-import { revalidatePath } from 'next/cache'
-import SubmitButton from '@/components/SubmitButton'
+import { formatDateTime, firstNonEmpty } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,17 +10,6 @@ const STATUS_COLOR: Record<string, 'amber' | 'blue' | 'green'> = {
   pending: 'amber',
   reviewed: 'blue',
   resolved: 'green',
-}
-
-async function updateReportStatus(formData: FormData) {
-  'use server'
-  const id = formData.get('id') as string
-  const status = formData.get('status') as string
-  await supabaseAdmin
-    .from('reports')
-    .update({ status, reviewed_at: new Date().toISOString() })
-    .eq('id', id)
-  revalidatePath('/reports')
 }
 
 export default async function ReportsPage() {
@@ -50,7 +38,7 @@ export default async function ReportsPage() {
               <th className="text-left px-4 py-3 font-medium">Reason</th>
               <th className="text-left px-4 py-3 font-medium">Status</th>
               <th className="text-left px-4 py-3 font-medium">Filed</th>
-              <th className="text-left px-4 py-3 font-medium">Actions</th>
+              <th className="text-right px-4 py-3 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -70,36 +58,15 @@ export default async function ReportsPage() {
             )}
             {reports?.map(r => (
               <tr key={r.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
-                <td className="px-4 py-3 text-gray-700">{profileMap.get(r.reporter_id)?.full_name ?? '—'}</td>
-                <td className="px-4 py-3 text-gray-700">{profileMap.get(r.reported_id)?.full_name ?? '—'}</td>
+                <td className="px-4 py-3 text-gray-700">{firstNonEmpty(profileMap.get(r.reporter_id)?.full_name) ?? '—'}</td>
+                <td className="px-4 py-3 text-gray-700">{firstNonEmpty(profileMap.get(r.reported_id)?.full_name) ?? '—'}</td>
                 <td className="px-4 py-3 text-gray-500 max-w-xs truncate" title={r.details ?? undefined}>{r.reason}</td>
                 <td className="px-4 py-3">
                   <StatusBadge label={r.status} color={STATUS_COLOR[r.status] ?? 'gray'} />
                 </td>
                 <td className="px-4 py-3 text-gray-500">{formatDateTime(r.created_at)}</td>
-                <td className="px-4 py-3">
-                  {r.status !== 'resolved' && (
-                    <div className="flex items-center gap-3">
-                      <form action={updateReportStatus}>
-                        <input type="hidden" name="id" value={r.id} />
-                        <input type="hidden" name="status" value="reviewed" />
-                        <SubmitButton
-                          label="Mark Reviewed"
-                          pendingLabel="Marking..."
-                          className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 font-medium"
-                        />
-                      </form>
-                      <form action={updateReportStatus}>
-                        <input type="hidden" name="id" value={r.id} />
-                        <input type="hidden" name="status" value="resolved" />
-                        <SubmitButton
-                          label="Resolve"
-                          pendingLabel="Resolving..."
-                          className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
-                        />
-                      </form>
-                    </div>
-                  )}
+                <td className="px-4 py-3 text-right">
+                  <ReportActionsMenu id={r.id} status={r.status} />
                 </td>
               </tr>
             ))}

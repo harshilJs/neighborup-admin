@@ -3,7 +3,7 @@
 import StatusBadge from '@/components/StatusBadge'
 import RowActionsMenu from '@/components/RowActionsMenu'
 import type { EditableUser } from '@/components/UserEditModal'
-import { formatDate, initials } from '@/lib/format'
+import { formatDate, initials, firstNonEmpty } from '@/lib/format'
 
 const TYPE_LABELS: Record<string, string> = {
   regular: 'Neighbor',
@@ -62,11 +62,11 @@ export default function UsersTable({ users, error }: { users: User[] | null; err
               <td className="px-4 py-3">
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-xs text-gray-700 font-medium shrink-0">
-                    {initials(user.display_name ?? user.full_name)}
+                    {initials(firstNonEmpty(user.display_name, user.full_name))}
                   </div>
                   <div>
-                    <p className="text-gray-900 font-medium leading-tight">{user.display_name ?? user.full_name ?? 'Unnamed'}</p>
-                    <p className="text-gray-400 text-xs">{user.email ?? '—'}</p>
+                    <p className="text-gray-900 font-medium leading-tight">{firstNonEmpty(user.display_name, user.full_name) ?? 'Unnamed'}</p>
+                    <p className="text-gray-400 text-xs">{firstNonEmpty(user.email) ?? '—'}</p>
                   </div>
                 </div>
               </td>

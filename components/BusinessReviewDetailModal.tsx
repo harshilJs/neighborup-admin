@@ -25,7 +25,7 @@ export interface PendingReview {
 
 const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div>
-    <p className="text-gray-500 text-xs font-medium uppercase tracking-wide mb-1">{label}</p>
+    <p className="text-left text-gray-500 text-xs font-medium uppercase tracking-wide mb-1">{label}</p>
     <div className="text-gray-800 text-sm">{children}</div>
   </div>
 )

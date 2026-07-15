@@ -1,7 +1,7 @@
 import PageHeader from '@/components/PageHeader'
 import StatusBadge from '@/components/StatusBadge'
 import { supabaseAdmin } from '@/lib/supabase'
-import { formatDateTime } from '@/lib/format'
+import { formatDateTime, firstNonEmpty } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
@@ -53,7 +53,7 @@ export default async function Page() {
             {notifications?.map(n => (
               <tr key={n.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
                 <td className="px-4 py-3 text-gray-700">
-                  {profileMap.get(n.user_id)?.full_name ?? profileMap.get(n.user_id)?.email ?? '—'}
+                  {firstNonEmpty(profileMap.get(n.user_id)?.full_name, profileMap.get(n.user_id)?.email) ?? '—'}
                 </td>
                 <td className="px-4 py-3 text-gray-700">{n.type}</td>
                 <td className="px-4 py-3 text-gray-700 max-w-xs truncate" title={n.content ?? undefined}>

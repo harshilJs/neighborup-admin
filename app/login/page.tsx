@@ -32,7 +32,7 @@ export default async function LoginPage({
             </p>
           )}
           <div>
-            <label className="block text-gray-500 text-xs font-medium uppercase tracking-wide mb-1.5">
+            <label className="block text-left text-gray-500 text-xs font-medium uppercase tracking-wide mb-1.5">
               Email
             </label>
             <input
@@ -44,7 +44,7 @@ export default async function LoginPage({
             />
           </div>
           <div>
-            <label className="block text-gray-500 text-xs font-medium uppercase tracking-wide mb-1.5">
+            <label className="block text-left text-gray-500 text-xs font-medium uppercase tracking-wide mb-1.5">
               Password
             </label>
             <input

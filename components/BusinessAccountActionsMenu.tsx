@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Eye, Pencil, Trash2, MoreHorizontal } from 'lucide-react'
+import { useState, useTransition } from 'react'
+import { Eye, Pencil, Trash2, MoreHorizontal, RotateCcw } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -11,6 +11,7 @@ import {
 import AccountDetailModal, { type AccountProfile, type LinkedReview } from '@/components/AccountDetailModal'
 import UserEditModal, { type EditableUser } from '@/components/UserEditModal'
 import DeleteUserModal from '@/components/DeleteUserModal'
+import { restoreUser } from '@/lib/actions/users'
 
 export default function BusinessAccountActionsMenu({
   account,
@@ -24,13 +25,23 @@ export default function BusinessAccountActionsMenu({
   const [viewing, setViewing] = useState(false)
   const [editing, setEditing] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [isPending, startTransition] = useTransition()
+
+  function restore() {
+    startTransition(async () => {
+      const formData = new FormData()
+      formData.set('id', account.id)
+      await restoreUser(formData)
+    })
+  }
 
   return (
     <>
       <DropdownMenu>
         <DropdownMenuTrigger
-          className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+          className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-50"
           aria-label="Actions"
+          disabled={isPending}
         >
           <MoreHorizontal className="w-4 h-4" />
         </DropdownMenuTrigger>
@@ -43,10 +54,17 @@ export default function BusinessAccountActionsMenu({
             <Pencil className="w-4 h-4" />
             Edit
           </DropdownMenuItem>
-          <DropdownMenuItem variant="destructive" onClick={() => setDeleting(true)}>
-            <Trash2 className="w-4 h-4" />
-            Delete
-          </DropdownMenuItem>
+          {account.deleted_at ? (
+            <DropdownMenuItem onClick={restore}>
+              <RotateCcw className="w-4 h-4" />
+              Restore
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem variant="destructive" onClick={() => setDeleting(true)}>
+              <Trash2 className="w-4 h-4" />
+              Delete
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 

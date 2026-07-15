@@ -2,14 +2,14 @@ import PageHeader from '@/components/PageHeader'
 import StatusBadge from '@/components/StatusBadge'
 import PostActionsMenu from '@/components/PostActionsMenu'
 import { supabaseAdmin } from '@/lib/supabase'
-import { formatDateTime } from '@/lib/format'
+import { formatDateTime, firstNonEmpty } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
 export default async function Page() {
   const { data: posts, error } = await supabaseAdmin
     .from('posts')
-    .select('id, user_id, content, image_url, is_business_post, created_at')
+    .select('id, user_id, content, image_url, image_urls, is_business_post, created_at')
     .order('created_at', { ascending: false })
     .limit(100)
 
@@ -52,7 +52,7 @@ export default async function Page() {
             {posts?.map(post => (
               <tr key={post.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
                 <td className="px-4 py-3 text-gray-700">
-                  {profileMap.get(post.user_id)?.full_name ?? profileMap.get(post.user_id)?.email ?? '—'}
+                  {firstNonEmpty(profileMap.get(post.user_id)?.full_name, profileMap.get(post.user_id)?.email) ?? '—'}
                 </td>
                 <td className="px-4 py-3 text-gray-500">
                   {post.image_url && (

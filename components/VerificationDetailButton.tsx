@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Eye, X, ExternalLink, MoreHorizontal, Check, Ban } from 'lucide-react'
+import { Eye, X, ExternalLink, MoreHorizontal, Check, Ban, RotateCcw } from 'lucide-react'
 import StatusBadge from '@/components/StatusBadge'
 import SubmitButton from '@/components/SubmitButton'
 import {
@@ -146,7 +146,7 @@ function parseAdminNotes(notes: string | null): NoteSection[] | string | null {
 
 const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div>
-    <p className="text-gray-500 text-xs font-medium uppercase tracking-wide mb-1">{label}</p>
+    <p className="text-left text-gray-500 text-xs font-medium uppercase tracking-wide mb-1">{label}</p>
     <div className="text-gray-800 text-sm">{children}</div>
   </div>
 )
@@ -163,7 +163,7 @@ export default function VerificationDetailButton({
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
 
-  function decide(status: 'approved' | 'rejected') {
+  function decide(status: 'approved' | 'rejected' | 'pending') {
     startTransition(async () => {
       const formData = new FormData()
       formData.set('id', request.id)
@@ -198,6 +198,12 @@ export default function VerificationDetailButton({
                 Reject
               </DropdownMenuItem>
             </>
+          )}
+          {request.status !== 'pending' && (
+            <DropdownMenuItem onClick={() => decide('pending')}>
+              <RotateCcw className="w-4 h-4" />
+              Reopen
+            </DropdownMenuItem>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
@@ -370,6 +376,19 @@ export default function VerificationDetailButton({
                     label="Approve"
                     pendingLabel="Approving..."
                     className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-md px-4 py-2 transition-colors"
+                  />
+                </form>
+              </div>
+            )}
+            {request.status !== 'pending' && (
+              <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200">
+                <form action={updateVerificationStatus}>
+                  <input type="hidden" name="id" value={request.id} />
+                  <input type="hidden" name="status" value="pending" />
+                  <SubmitButton
+                    label="Reopen"
+                    pendingLabel="Reopening..."
+                    className="text-sm text-amber-600 hover:text-amber-700 font-medium px-3 py-2"
                   />
                 </form>
               </div>

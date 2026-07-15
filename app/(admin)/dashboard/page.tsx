@@ -3,7 +3,7 @@ import StatCard from '@/components/StatCard'
 import PageHeader from '@/components/PageHeader'
 import StatusBadge from '@/components/StatusBadge'
 import { supabaseAdmin } from '@/lib/supabase'
-import { formatDateTime } from '@/lib/format'
+import { formatDateTime, firstNonEmpty } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
 
@@ -88,8 +88,8 @@ export default async function DashboardPage() {
               {recentSignups.data.map(u => (
                 <div key={u.id} className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-sm text-gray-800 truncate">{u.display_name ?? u.full_name ?? 'Unnamed'}</p>
-                    <p className="text-xs text-gray-400 truncate">{u.email}</p>
+                    <p className="text-sm text-gray-800 truncate">{firstNonEmpty(u.display_name, u.full_name) ?? 'Unnamed'}</p>
+                    <p className="text-xs text-gray-400 truncate">{firstNonEmpty(u.email) ?? '—'}</p>
                   </div>
                   <p className="text-xs text-gray-400 shrink-0">{formatDateTime(u.created_at)}</p>
                 </div>

@@ -26,6 +26,16 @@ export function formatCurrency(cents: number | null | undefined, currency = 'usd
   }).format(cents / 100)
 }
 
+// Some profiles have '' rather than null for an unset name (e.g. incomplete
+// signups) — `??` treats '' as present, so chained `a ?? b ?? fallback` silently
+// renders blank instead of falling through. This skips blank/whitespace-only values too.
+export function firstNonEmpty(...values: (string | null | undefined)[]) {
+  for (const v of values) {
+    if (v && v.trim()) return v
+  }
+  return null
+}
+
 export function initials(name: string | null | undefined) {
   if (!name) return '?'
   return name

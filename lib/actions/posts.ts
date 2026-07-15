@@ -7,10 +7,17 @@ export async function updatePost(formData: FormData) {
   const id = formData.get('id') as string
   const content = formData.get('content') as string
   const is_business_post = formData.get('is_business_post') === 'true'
+  const image_urls = JSON.parse((formData.get('image_urls') as string) || '[]') as string[]
 
   await supabaseAdmin
     .from('posts')
-    .update({ content, is_business_post, updated_at: new Date().toISOString() })
+    .update({
+      content,
+      is_business_post,
+      image_urls,
+      image_url: image_urls[0] ?? null,
+      updated_at: new Date().toISOString(),
+    })
     .eq('id', id)
 
   revalidatePath('/posts')
