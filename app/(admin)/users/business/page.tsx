@@ -1,9 +1,9 @@
 import PageHeader from '@/components/PageHeader'
 import StatusBadge from '@/components/StatusBadge'
+import BusinessReviewDetailModal from '@/components/BusinessReviewDetailModal'
+import BusinessAccountActionsMenu from '@/components/BusinessAccountActionsMenu'
 import { supabaseAdmin } from '@/lib/supabase'
 import { formatDate, formatDateTime } from '@/lib/format'
-import { revalidatePath } from 'next/cache'
-import SubmitButton from '@/components/SubmitButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,28 +18,47 @@ const VERIFICATION_COLOR: Record<string, 'green' | 'amber' | 'red'> = {
   rejected: 'red',
 }
 
-async function updateReviewStatus(formData: FormData) {
-  'use server'
-  const id = formData.get('id') as string
-  const status = formData.get('status') as string
-  await supabaseAdmin
-    .from('pending_reviews')
-    .update({ status, reviewed_at: new Date().toISOString() })
-    .eq('id', id)
-  revalidatePath('/users/business')
-}
-
 export default async function Page() {
   const { data: accounts, error: accountsError } = await supabaseAdmin
     .from('profiles')
-    .select('id, full_name, display_name, org_name, official_email, email, business_category, account_type, verification_status, created_at')
+    .select(
+      'id, full_name, display_name, org_name, official_email, email, business_category, business_description, business_phone, business_website, business_address, account_type, verification_status, subscription_status, created_at'
+    )
     .in('account_type', ['business', 'official'])
+    .is('deleted_at', null)
     .order('created_at', { ascending: false })
     .limit(100)
 
+  interface AccountReview {
+    id: string
+    user_id: string
+    org_document_url: string | null
+    status: string
+    submitted_at: string | null
+    notes: string | null
+  }
+
+  const accountIds = (accounts ?? []).map(a => a.id)
+  const { data: accountReviews } = accountIds.length
+    ? await supabaseAdmin
+        .from('pending_reviews')
+        .select('id, user_id, org_document_url, status, submitted_at, notes')
+        .in('user_id', accountIds)
+        .order('submitted_at', { ascending: false })
+    : { data: [] as AccountReview[] }
+  // Most recent review per user (accountReviews is already ordered newest-first).
+  const latestReviewByUser = new Map<string, AccountReview>()
+  for (const review of (accountReviews ?? []) as AccountReview[]) {
+    if (!latestReviewByUser.has(review.user_id)) latestReviewByUser.set(review.user_id, review)
+  }
+
+  // Accounts still awaiting a decision only show in the Pending Reviews list below,
+  // not here — this list is for accounts that have already been reviewed.
+  const visibleAccounts = (accounts ?? []).filter(a => latestReviewByUser.get(a.id)?.status !== 'pending')
+
   const { data: reviews, error: reviewsError } = await supabaseAdmin
     .from('pending_reviews')
-    .select('id, user_id, account_type, org_name, official_email, submitted_at, status, notes')
+    .select('id, user_id, account_type, org_name, official_email, org_document_url, submitted_at, status, notes')
     .eq('status', 'pending')
     .order('submitted_at', { ascending: true })
     .limit(50)
@@ -65,24 +84,25 @@ export default async function Page() {
               <th className="text-left px-4 py-3 font-medium">Category</th>
               <th className="text-left px-4 py-3 font-medium">Verification</th>
               <th className="text-left px-4 py-3 font-medium">Joined</th>
+              <th className="text-left px-4 py-3 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
             {accountsError && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-red-600">
+                <td colSpan={7} className="px-4 py-10 text-center text-red-600">
                   Failed to load accounts: {accountsError.message}
                 </td>
               </tr>
             )}
-            {!accountsError && accounts?.length === 0 && (
+            {!accountsError && visibleAccounts.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-gray-400">
-                  No business or official accounts yet.
+                <td colSpan={7} className="px-4 py-10 text-center text-gray-400">
+                  No reviewed business or official accounts yet.
                 </td>
               </tr>
             )}
-            {accounts?.map(a => (
+            {visibleAccounts.map(a => (
               <tr key={a.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
                 <td className="px-4 py-3 text-gray-900 font-medium">{a.org_name ?? a.display_name ?? a.full_name ?? 'Unnamed'}</td>
                 <td className="px-4 py-3">
@@ -97,6 +117,13 @@ export default async function Page() {
                   />
                 </td>
                 <td className="px-4 py-3 text-gray-500">{formatDate(a.created_at)}</td>
+                <td className="px-4 py-3">
+                  <BusinessAccountActionsMenu
+                    account={a}
+                    review={latestReviewByUser.get(a.id) ?? null}
+                    applicantLabel={a.org_name ?? a.display_name ?? a.full_name ?? 'Unnamed'}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -139,26 +166,10 @@ export default async function Page() {
                     <td className="px-4 py-3 text-gray-700">{r.org_name ?? '—'}</td>
                     <td className="px-4 py-3 text-gray-500">{formatDateTime(r.submitted_at)}</td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <form action={updateReviewStatus}>
-                          <input type="hidden" name="id" value={r.id} />
-                          <input type="hidden" name="status" value="approved" />
-                          <SubmitButton
-                            label="Approve"
-                            pendingLabel="Approving..."
-                            className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
-                          />
-                        </form>
-                        <form action={updateReviewStatus}>
-                          <input type="hidden" name="id" value={r.id} />
-                          <input type="hidden" name="status" value="rejected" />
-                          <SubmitButton
-                            label="Reject"
-                            pendingLabel="Rejecting..."
-                            className="inline-flex items-center gap-1 text-xs text-red-600 hover:text-red-700 font-medium"
-                          />
-                        </form>
-                      </div>
+                      <BusinessReviewDetailModal
+                        review={r}
+                        applicantLabel={profile?.full_name ?? r.org_name ?? 'Unknown'}
+                      />
                     </td>
                   </tr>
                 )

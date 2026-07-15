@@ -1,5 +1,6 @@
 import PageHeader from '@/components/PageHeader'
 import StatusBadge from '@/components/StatusBadge'
+import RowActionsMenu from '@/components/RowActionsMenu'
 import { supabaseAdmin } from '@/lib/supabase'
 import { formatDate } from '@/lib/format'
 
@@ -14,8 +15,9 @@ const VERIFICATION_COLOR: Record<string, 'green' | 'amber' | 'red'> = {
 export default async function KidAccountsPage() {
   const { data: kids, error } = await supabaseAdmin
     .from('profiles')
-    .select('id, full_name, display_name, age, date_of_birth, is_minor, parent_user_id, verification_status, created_at')
+    .select('id, full_name, display_name, email, age, date_of_birth, is_minor, parent_user_id, account_type, verification_status, subscription_status, created_at')
     .eq('account_type', 'kid')
+    .is('deleted_at', null)
     .order('created_at', { ascending: false })
     .limit(100)
 
@@ -38,19 +40,20 @@ export default async function KidAccountsPage() {
               <th className="text-left px-4 py-3 font-medium">Parent</th>
               <th className="text-left px-4 py-3 font-medium">Verification</th>
               <th className="text-left px-4 py-3 font-medium">Joined</th>
+              <th className="text-right px-4 py-3 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
             {error && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-red-600">
+                <td colSpan={6} className="px-4 py-10 text-center text-red-600">
                   Failed to load kid accounts: {error.message}
                 </td>
               </tr>
             )}
             {!error && kids?.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-gray-400">
+                <td colSpan={6} className="px-4 py-10 text-center text-gray-400">
                   No kid accounts yet.
                 </td>
               </tr>
@@ -69,6 +72,9 @@ export default async function KidAccountsPage() {
                     />
                   </td>
                   <td className="px-4 py-3 text-gray-500">{formatDate(kid.created_at)}</td>
+                  <td className="px-4 py-3 text-right">
+                    <RowActionsMenu user={kid} />
+                  </td>
                 </tr>
               )
             })}

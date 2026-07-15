@@ -4,9 +4,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
-  LayoutDashboard, Users, ShieldCheck, Flag, FileText,
+  LayoutDashboard, Users, Flag, FileText,
   Users2, ShoppingBag, Baby, CreditCard, DollarSign,
-  Building2, BarChart2, Bell, ScrollText, Settings, LogOut,
+  Building2, BarChart2, Bell, Settings, LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { signOut } from '@/lib/actions/auth'
@@ -22,7 +22,6 @@ const nav = [
     { href: '/users/business', icon: Building2, label: 'Business & Official' },
   ]},
   { label: 'TRUST & SAFETY', items: [
-    { href: '/moderation', icon: ShieldCheck, label: 'Moderation Queue' },
     { href: '/verification', icon: FileText, label: 'Verification' },
     { href: '/reports', icon: Flag, label: 'User Reports' },
   ]},
@@ -38,7 +37,6 @@ const nav = [
   { label: 'OPERATIONS', items: [
     { href: '/analytics', icon: BarChart2, label: 'Analytics' },
     { href: '/notifications', icon: Bell, label: 'Push Campaigns' },
-    { href: '/audit-logs', icon: ScrollText, label: 'Audit Logs' },
     { href: '/settings', icon: Settings, label: 'Settings' },
   ]},
 ]

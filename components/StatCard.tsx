@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { LucideIcon } from 'lucide-react'
 
 interface Props {
@@ -6,6 +7,7 @@ interface Props {
   icon: LucideIcon
   trend?: string
   color?: 'blue' | 'green' | 'amber' | 'red' | 'purple'
+  href?: string
 }
 
 const colors = {
@@ -16,10 +18,14 @@ const colors = {
   purple: { bg: 'bg-purple-50',  icon: 'text-purple-600',  border: 'border-purple-100' },
 }
 
-export default function StatCard({ label, value, icon: Icon, trend, color = 'blue' }: Props) {
+export default function StatCard({ label, value, icon: Icon, trend, color = 'blue', href }: Props) {
   const c = colors[color]
-  return (
-    <div className={`bg-white border ${c.border} rounded-xl p-4 shadow-sm`}>
+  const card = (
+    <div
+      className={`bg-white border ${c.border} rounded-xl p-4 shadow-sm ${
+        href ? 'hover:shadow-md hover:border-gray-300 transition-shadow cursor-pointer' : ''
+      }`}
+    >
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-gray-500 text-xs font-medium uppercase tracking-wide mb-1">{label}</p>
@@ -32,4 +38,14 @@ export default function StatCard({ label, value, icon: Icon, trend, color = 'blu
       </div>
     </div>
   )
+
+  if (href) {
+    return (
+      <Link href={href} className="block">
+        {card}
+      </Link>
+    )
+  }
+
+  return card
 }

@@ -1,4 +1,4 @@
-import { Users, ShieldAlert, CreditCard, Clock, Flag, CheckCircle } from 'lucide-react'
+import { Users, CreditCard, Clock, Flag, CheckCircle } from 'lucide-react'
 import StatCard from '@/components/StatCard'
 import PageHeader from '@/components/PageHeader'
 import StatusBadge from '@/components/StatusBadge'
@@ -18,7 +18,6 @@ export default async function DashboardPage() {
     totalUsers,
     activeSubscriptions,
     pendingVerifications,
-    openModerationItems,
     userReports,
     verifiedUsers,
     recentReports,
@@ -27,8 +26,7 @@ export default async function DashboardPage() {
     supabaseAdmin.from('profiles').select('id', { count: 'exact', head: true }),
     supabaseAdmin.from('profiles').select('id', { count: 'exact', head: true }).eq('subscription_status', 'active'),
     supabaseAdmin.from('profiles').select('id', { count: 'exact', head: true }).eq('verification_status', 'pending'),
-    supabaseAdmin.from('moderation_results').select('id', { count: 'exact', head: true }).eq('flagged', true).is('reviewed_at', null),
-    supabaseAdmin.from('reports').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+    supabaseAdmin.from('reports').select('id', { count: 'exact', head: true }),
     supabaseAdmin.from('profiles').select('id', { count: 'exact', head: true }).eq('verification_status', 'approved'),
     supabaseAdmin.from('reports').select('id, reason, status, created_at').order('created_at', { ascending: false }).limit(5),
     supabaseAdmin.from('profiles').select('id, full_name, display_name, email, created_at').order('created_at', { ascending: false }).limit(5),
@@ -39,12 +37,29 @@ export default async function DashboardPage() {
       <PageHeader title="Dashboard" description="Platform overview and key metrics" />
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        <StatCard label="Total Users" value={totalUsers.count ?? '—'} icon={Users} color="blue" />
-        <StatCard label="Active Subscriptions" value={activeSubscriptions.count ?? '—'} icon={CreditCard} color="green" />
-        <StatCard label="Pending Verifications" value={pendingVerifications.count ?? '—'} icon={Clock} color="amber" />
-        <StatCard label="Open Moderation Items" value={openModerationItems.count ?? '—'} icon={ShieldAlert} color="red" />
-        <StatCard label="User Reports" value={userReports.count ?? '—'} icon={Flag} color="purple" />
-        <StatCard label="Verified Users" value={verifiedUsers.count ?? '—'} icon={CheckCircle} color="green" />
+        <StatCard label="Total Users" value={totalUsers.count ?? '—'} icon={Users} color="blue" href="/users" />
+        <StatCard
+          label="Active Subscriptions"
+          value={activeSubscriptions.count ?? '—'}
+          icon={CreditCard}
+          color="green"
+          href="/users?subscription=active"
+        />
+        <StatCard
+          label="Pending Verifications"
+          value={pendingVerifications.count ?? '—'}
+          icon={Clock}
+          color="amber"
+          href="/users?verification=pending"
+        />
+        <StatCard label="User Reports" value={userReports.count ?? '—'} icon={Flag} color="purple" href="/reports" />
+        <StatCard
+          label="Verified Users"
+          value={verifiedUsers.count ?? '—'}
+          icon={CheckCircle}
+          color="green"
+          href="/users?verification=approved"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

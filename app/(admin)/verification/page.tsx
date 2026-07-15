@@ -1,9 +1,8 @@
 import PageHeader from '@/components/PageHeader'
 import StatusBadge from '@/components/StatusBadge'
+import VerificationDetailButton from '@/components/VerificationDetailButton'
 import { supabaseAdmin } from '@/lib/supabase'
 import { formatDateTime } from '@/lib/format'
-import { revalidatePath } from 'next/cache'
-import SubmitButton from '@/components/SubmitButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,23 +12,22 @@ const STATUS_COLOR: Record<string, 'green' | 'amber' | 'red'> = {
   rejected: 'red',
 }
 
-async function updateVerificationStatus(formData: FormData) {
-  'use server'
-  const id = formData.get('id') as string
-  const status = formData.get('status') as string
-  const update: { status: string; approved_at?: string } = { status }
-  if (status === 'approved') update.approved_at = new Date().toISOString()
-  await supabaseAdmin
-    .from('verification_requests')
-    .update(update)
-    .eq('id', id)
-  revalidatePath('/verification')
-}
+const VERIFICATION_FIELDS =
+  'id, user_id, verification_method, status, full_name, city, state, address_line1, zip_code, photo_url, id_document_url, mailed_code, code_verified, location_verification_start, location_verification_complete, admin_notes, created_at, approved_at, document_expires_at, veriff_session_url, veriff_decision, veriff_decision_at'
 
 export default async function Page() {
+  // Mailed-code verifications auto-approve once the recipient has confirmed the code —
+  // there's no way to run a DB trigger from here, so this check runs whenever the page loads.
+  await supabaseAdmin
+    .from('verification_requests')
+    .update({ status: 'approved', approved_at: new Date().toISOString() })
+    .eq('verification_method', 'mailed_code')
+    .eq('code_verified', true)
+    .eq('status', 'pending')
+
   const { data: requests, error } = await supabaseAdmin
     .from('verification_requests')
-    .select('id, user_id, verification_method, status, full_name, city, state, admin_notes, created_at, approved_at')
+    .select(VERIFICATION_FIELDS)
     .order('created_at', { ascending: false })
     .limit(100)
 
@@ -38,6 +36,17 @@ export default async function Page() {
     ? await supabaseAdmin.from('profiles').select('id, full_name, email').in('id', userIds)
     : { data: [] as { id: string; full_name: string | null; email: string | null }[] }
   const profileMap = new Map((profiles ?? []).map(p => [p.id, p]))
+
+  const locationRequestIds = (requests ?? [])
+    .filter(r => r.verification_method === 'location_tracking')
+    .map(r => r.id)
+  const { data: sessions } = locationRequestIds.length
+    ? await supabaseAdmin
+        .from('location_tracking_sessions')
+        .select('verification_request_id, started_at, ends_at, status, total_checkins, nighttime_checkins, completed_at, consent_granted_at')
+        .in('verification_request_id', locationRequestIds)
+    : { data: [] as { verification_request_id: string; started_at: string | null; ends_at: string | null; status: string | null; total_checkins: number | null; nighttime_checkins: number | null; completed_at: string | null; consent_granted_at: string | null }[] }
+  const sessionMap = new Map((sessions ?? []).map(s => [s.verification_request_id, s]))
 
   return (
     <div>
@@ -84,28 +93,11 @@ export default async function Page() {
                   </td>
                   <td className="px-4 py-3 text-gray-500">{formatDateTime(r.created_at)}</td>
                   <td className="px-4 py-3">
-                    {r.status === 'pending' && (
-                      <div className="flex items-center gap-3">
-                        <form action={updateVerificationStatus}>
-                          <input type="hidden" name="id" value={r.id} />
-                          <input type="hidden" name="status" value="approved" />
-                          <SubmitButton
-                            label="Approve"
-                            pendingLabel="Approving..."
-                            className="inline-flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
-                          />
-                        </form>
-                        <form action={updateVerificationStatus}>
-                          <input type="hidden" name="id" value={r.id} />
-                          <input type="hidden" name="status" value="rejected" />
-                          <SubmitButton
-                            label="Reject"
-                            pendingLabel="Rejecting..."
-                            className="inline-flex items-center gap-1 text-xs text-red-600 hover:text-red-700 font-medium"
-                          />
-                        </form>
-                      </div>
-                    )}
+                    <VerificationDetailButton
+                      request={r}
+                      session={sessionMap.get(r.id) ?? null}
+                      applicantLabel={applicant}
+                    />
                   </td>
                 </tr>
               )

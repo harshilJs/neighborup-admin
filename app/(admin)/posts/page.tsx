@@ -1,5 +1,6 @@
 import PageHeader from '@/components/PageHeader'
 import StatusBadge from '@/components/StatusBadge'
+import PostActionsMenu from '@/components/PostActionsMenu'
 import { supabaseAdmin } from '@/lib/supabase'
 import { formatDateTime } from '@/lib/format'
 
@@ -30,19 +31,20 @@ export default async function Page() {
               <th className="text-left px-4 py-3 font-medium">Content</th>
               <th className="text-left px-4 py-3 font-medium">Type</th>
               <th className="text-left px-4 py-3 font-medium">Posted</th>
+              <th className="text-right px-4 py-3 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
             {error && (
               <tr>
-                <td colSpan={4} className="px-4 py-10 text-center text-red-600">
+                <td colSpan={5} className="px-4 py-10 text-center text-red-600">
                   Failed to load posts: {error.message}
                 </td>
               </tr>
             )}
             {!error && posts?.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-4 py-10 text-center text-gray-400">
+                <td colSpan={5} className="px-4 py-10 text-center text-gray-400">
                   No posts yet.
                 </td>
               </tr>
@@ -67,6 +69,9 @@ export default async function Page() {
                   )}
                 </td>
                 <td className="px-4 py-3 text-gray-500">{formatDateTime(post.created_at)}</td>
+                <td className="px-4 py-3 text-right">
+                  <PostActionsMenu post={post} />
+                </td>
               </tr>
             ))}
           </tbody>

@@ -30,9 +30,9 @@ export default async function SubscriptionsPage() {
   const subscriptionProfileMap = new Map((subscriptionProfiles ?? []).map(p => [p.id, p]))
 
   const { data: entitlements, error: entitlementsError } = await supabaseAdmin
-    .from('user_active_entitlements')
-    .select('user_id, entitlement, product_id, expires_at, cancel_at_period_end, source')
-    .order('expires_at', { ascending: false, nullsFirst: false })
+    .from('user_entitlements')
+    .select('id, user_id, entitlement, product_id, active, store, expires_at, cancel_at_period_end, last_event_type, last_event_at, source')
+    .order('last_event_at', { ascending: false, nullsFirst: false })
     .limit(50)
 
   const entitlementUserIds = Array.from(new Set((entitlements ?? []).map(e => e.user_id).filter(Boolean)))
@@ -43,104 +43,60 @@ export default async function SubscriptionsPage() {
 
   return (
     <div>
-      <PageHeader title="Subscriptions" description="Active entitlements across RevenueCat and Stripe" />
-
-      <div className="mb-8">
-        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Stripe Subscriptions</h2>
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wide">
-                <th className="text-left px-4 py-3 font-medium">Subscriber</th>
-                <th className="text-left px-4 py-3 font-medium">Plan</th>
-                <th className="text-left px-4 py-3 font-medium">Amount</th>
-                <th className="text-left px-4 py-3 font-medium">Status</th>
-                <th className="text-left px-4 py-3 font-medium">Renews</th>
-              </tr>
-            </thead>
-            <tbody>
-              {subscriptionsError && (
-                <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-red-600">
-                    Failed to load Stripe subscriptions: {subscriptionsError.message}
-                  </td>
-                </tr>
-              )}
-              {!subscriptionsError && subscriptions?.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-gray-400">
-                    No Stripe subscriptions yet.
-                  </td>
-                </tr>
-              )}
-              {subscriptions?.map(s => {
-                const profile = subscriptionProfileMap.get(s.user_id)
-                return (
-                  <tr key={s.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <p className="text-gray-900 font-medium leading-tight">{profile?.full_name ?? 'Unnamed'}</p>
-                      <p className="text-gray-400 text-xs">{profile?.email ?? '—'}</p>
-                    </td>
-                    <td className="px-4 py-3 text-gray-700">{capitalize(s.plan_type)}</td>
-                    <td className="px-4 py-3 text-gray-700">{formatCurrency(s.amount)}</td>
-                    <td className="px-4 py-3">
-                      <StatusBadge label={s.status} color={STRIPE_STATUS_COLOR[s.status] ?? 'gray'} />
-                    </td>
-                    <td className="px-4 py-3 text-gray-500">{formatDate(s.current_period_end)}</td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <PageHeader title="Subscriptions" description="Subscriptions and purchase history across RevenueCat and Stripe" />
 
       <div>
-        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Mobile Entitlements (RevenueCat)</h2>
+        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">Mobile Purchase History (RevenueCat / IAP)</h2>
         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200 text-gray-500 text-xs uppercase tracking-wide">
                 <th className="text-left px-4 py-3 font-medium">User</th>
-                <th className="text-left px-4 py-3 font-medium">Entitlement</th>
                 <th className="text-left px-4 py-3 font-medium">Product</th>
-                <th className="text-left px-4 py-3 font-medium">Source</th>
-                <th className="text-left px-4 py-3 font-medium">Expires</th>
+                <th className="text-left px-4 py-3 font-medium">Store</th>
+                <th className="text-left px-4 py-3 font-medium">Status</th>
+                <th className="text-left px-4 py-3 font-medium">Last Event</th>
               </tr>
             </thead>
             <tbody>
               {entitlementsError && (
                 <tr>
                   <td colSpan={5} className="px-4 py-10 text-center text-red-600">
-                    Failed to load mobile entitlements: {entitlementsError.message}
+                    Failed to load mobile purchase history: {entitlementsError.message}
                   </td>
                 </tr>
               )}
               {!entitlementsError && entitlements?.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-4 py-10 text-center text-gray-400">
-                    No active mobile entitlements.
+                    No in-app purchases recorded yet.
                   </td>
                 </tr>
               )}
               {entitlements?.map(e => {
                 const profile = entitlementProfileMap.get(e.user_id)
                 return (
-                  <tr key={e.user_id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
+                  <tr key={e.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
                     <td className="px-4 py-3">
                       <p className="text-gray-900 font-medium leading-tight">{profile?.full_name ?? 'Unnamed'}</p>
                       <p className="text-gray-400 text-xs">{profile?.email ?? '—'}</p>
                     </td>
-                    <td className="px-4 py-3 text-gray-700">{e.entitlement}</td>
-                    <td className="px-4 py-3 text-gray-700">{e.product_id}</td>
-                    <td className="px-4 py-3 text-gray-700">{e.source}</td>
-                    <td className="px-4 py-3 text-gray-500">
+                    <td className="px-4 py-3">
+                      <p className="text-gray-700">{e.product_id}</p>
+                      <p className="text-gray-400 text-xs">{e.entitlement}</p>
+                    </td>
+                    <td className="px-4 py-3 text-gray-700">{e.store ?? '—'}</td>
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <span>{formatDate(e.expires_at)}</span>
+                        <StatusBadge label={e.active ? 'Active' : 'Expired'} color={e.active ? 'green' : 'gray'} />
                         {e.cancel_at_period_end && (
                           <StatusBadge label="Cancels at period end" color="amber" />
                         )}
                       </div>
+                    </td>
+                    <td className="px-4 py-3 text-gray-500">
+                      <p>{e.last_event_type ?? '—'}</p>
+                      <p className="text-gray-400 text-xs">{formatDate(e.last_event_at)}</p>
                     </td>
                   </tr>
                 )
