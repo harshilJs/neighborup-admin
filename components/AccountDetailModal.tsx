@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
 import { X, ExternalLink } from 'lucide-react'
 import StatusBadge from '@/components/StatusBadge'
 import SubmitButton from '@/components/SubmitButton'
+import DocumentImage from '@/components/DocumentImage'
 import { updateReviewStatus } from '@/lib/actions/business'
 import { formatDate, formatDateTime, firstNonEmpty } from '@/lib/format'
 
@@ -62,8 +62,6 @@ export default function AccountDetailModal({
   applicantLabel: string
   onClose: () => void
 }) {
-  const [imageFailed, setImageFailed] = useState(false)
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/30" onClick={onClose} />
@@ -109,15 +107,7 @@ export default function AccountDetailModal({
             <Row label="Submitted Document">
               {review?.org_document_url ? (
                 <div className="space-y-2">
-                  {!imageFailed && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={review.org_document_url}
-                      alt="Submitted document"
-                      onError={() => setImageFailed(true)}
-                      className="max-h-64 w-auto rounded-md border border-gray-200"
-                    />
-                  )}
+                  <DocumentImage src={review.org_document_url} alt="Submitted document" />
                   <a
                     href={review.org_document_url}
                     target="_blank"

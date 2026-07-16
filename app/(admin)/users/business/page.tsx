@@ -5,7 +5,7 @@ import BusinessAccountActionsMenu from '@/components/BusinessAccountActionsMenu'
 import DeactivatedToggle from '@/components/DeactivatedToggle'
 import PendingOverlay from '@/components/PendingOverlay'
 import { NavPendingProvider } from '@/lib/nav-pending-context'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabaseAdmin, signBusinessDocUrls } from '@/lib/supabase'
 import { formatDate, formatDateTime, firstNonEmpty } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
@@ -61,15 +61,6 @@ export default async function Page({
         .in('user_id', accountIds)
         .order('submitted_at', { ascending: false })
     : { data: [] as AccountReview[] }
-  // Most recent review per user (accountReviews is already ordered newest-first).
-  const latestReviewByUser = new Map<string, AccountReview>()
-  for (const review of (accountReviews ?? []) as AccountReview[]) {
-    if (!latestReviewByUser.has(review.user_id)) latestReviewByUser.set(review.user_id, review)
-  }
-
-  // Accounts still awaiting a decision only show in the Pending Reviews list below,
-  // not here — this list is for accounts that have already been reviewed.
-  const visibleAccounts = (accounts ?? []).filter(a => latestReviewByUser.get(a.id)?.status !== 'pending')
 
   const { data: reviews, error: reviewsError } = await supabaseAdmin
     .from('pending_reviews')
@@ -78,10 +69,45 @@ export default async function Page({
     .order('submitted_at', { ascending: true })
     .limit(50)
 
+  // The mobile app stores document refs as a private-bucket storage path, not a
+  // viewable URL — sign them all in one batch call before rendering either table.
+  const signedDocUrls = await signBusinessDocUrls([
+    ...(accountReviews ?? []).map(r => r.org_document_url),
+    ...(reviews ?? []).map(r => r.org_document_url),
+  ])
+  const withSignedDoc = <T extends { org_document_url: string | null }>(r: T): T => ({
+    ...r,
+    org_document_url: r.org_document_url ? (signedDocUrls.get(r.org_document_url) ?? r.org_document_url) : null,
+  })
+
+  // Most recent review per user (accountReviews is already ordered newest-first).
+  const latestReviewByUser = new Map<string, AccountReview>()
+  for (const review of (accountReviews ?? []) as AccountReview[]) {
+    if (!latestReviewByUser.has(review.user_id)) latestReviewByUser.set(review.user_id, withSignedDoc(review))
+  }
+
+  // Accounts still awaiting a decision only show in the Pending Reviews list below,
+  // not here — this list is for accounts that have already been reviewed.
+  const visibleAccounts = (accounts ?? []).filter(a => latestReviewByUser.get(a.id)?.status !== 'pending')
+
   const reviewerIds = Array.from(new Set((reviews ?? []).map(r => r.user_id).filter(Boolean)))
   const { data: reviewProfiles } = reviewerIds.length
-    ? await supabaseAdmin.from('profiles').select('id, full_name, email').in('id', reviewerIds)
-    : { data: [] as { id: string; full_name: string | null; email: string | null }[] }
+    ? await supabaseAdmin
+        .from('profiles')
+        .select('id, full_name, email, business_category, business_description, business_phone, business_website, business_address')
+        .in('id', reviewerIds)
+    : {
+        data: [] as {
+          id: string
+          full_name: string | null
+          email: string | null
+          business_category: string | null
+          business_description: string | null
+          business_phone: string | null
+          business_website: string | null
+          business_address: string | null
+        }[],
+      }
   const reviewProfileMap = new Map((reviewProfiles ?? []).map(p => [p.id, p]))
 
   return (
@@ -189,7 +215,8 @@ export default async function Page({
                     <td className="px-4 py-3 text-gray-500">{formatDateTime(r.submitted_at)}</td>
                     <td className="px-4 py-3">
                       <BusinessReviewDetailModal
-                        review={r}
+                        review={withSignedDoc(r)}
+                        profile={profile ?? null}
                         applicantLabel={firstNonEmpty(profile?.full_name, r.org_name) ?? 'Unknown'}
                       />
                     </td>

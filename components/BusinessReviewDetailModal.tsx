@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Eye, X, ExternalLink } from 'lucide-react'
 import StatusBadge from '@/components/StatusBadge'
 import SubmitButton from '@/components/SubmitButton'
+import DocumentImage from '@/components/DocumentImage'
 import { updateReviewStatus } from '@/lib/actions/business'
 import { formatDateTime } from '@/lib/format'
 
@@ -23,6 +24,14 @@ export interface PendingReview {
   notes: string | null
 }
 
+export interface ApplicantProfile {
+  business_category: string | null
+  business_description: string | null
+  business_phone: string | null
+  business_website: string | null
+  business_address: string | null
+}
+
 const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div>
     <p className="text-left text-gray-500 text-xs font-medium uppercase tracking-wide mb-1">{label}</p>
@@ -32,13 +41,14 @@ const Row = ({ label, children }: { label: string; children: React.ReactNode }) 
 
 export default function BusinessReviewDetailModal({
   review,
+  profile,
   applicantLabel,
 }: {
   review: PendingReview
+  profile: ApplicantProfile | null
   applicantLabel: string
 }) {
   const [open, setOpen] = useState(false)
-  const [imageFailed, setImageFailed] = useState(false)
 
   return (
     <>
@@ -72,19 +82,27 @@ export default function BusinessReviewDetailModal({
               <Row label="Organization Name">{review.org_name ?? '—'}</Row>
 
               {review.official_email && <Row label="Official Email">{review.official_email}</Row>}
+              {profile?.business_phone && <Row label="Phone">{profile.business_phone}</Row>}
+              {profile?.business_website && (
+                <Row label="Website">
+                  <a
+                    href={profile.business_website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700"
+                  >
+                    {profile.business_website} <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </Row>
+              )}
+              {profile?.business_category && <Row label="Category">{profile.business_category}</Row>}
+              {profile?.business_address && <Row label="Address">{profile.business_address}</Row>}
+              {profile?.business_description && <Row label="Description">{profile.business_description}</Row>}
 
               <Row label="Submitted Document">
                 {review.org_document_url ? (
                   <div className="space-y-2">
-                    {!imageFailed && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={review.org_document_url}
-                        alt="Submitted document"
-                        onError={() => setImageFailed(true)}
-                        className="max-h-64 w-auto rounded-md border border-gray-200"
-                      />
-                    )}
+                    <DocumentImage src={review.org_document_url} alt="Submitted document" />
                     <a
                       href={review.org_document_url}
                       target="_blank"

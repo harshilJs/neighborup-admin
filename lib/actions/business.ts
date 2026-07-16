@@ -13,10 +13,13 @@ export async function updateReviewStatus(formData: FormData) {
     .update({ status, reviewed_at: new Date().toISOString() })
     .eq('id', id)
 
-  // The review's own status only tracks the queue item — the account's actual
-  // verification_status (shown in the Accounts table) has to be updated separately.
+  // Sync the profile: is_verified drives app access; verification_status drives admin display
   if (userId && (status === 'approved' || status === 'rejected')) {
-    await supabaseAdmin.from('profiles').update({ verification_status: status }).eq('id', userId)
+    await supabaseAdmin.from('profiles').update({
+      verification_status: status,
+      is_verified: status === 'approved',
+      review_status: status,
+    }).eq('id', userId)
   }
 
   revalidatePath('/users/business')
