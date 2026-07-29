@@ -1,7 +1,7 @@
 import PageHeader from '@/components/PageHeader'
 import StatusBadge from '@/components/StatusBadge'
 import VerificationDetailButton from '@/components/VerificationDetailButton'
-import { supabaseAdmin } from '@/lib/supabase'
+import { supabaseAdmin, signBusinessDocUrls } from '@/lib/supabase'
 import { formatDateTime, firstNonEmpty } from '@/lib/format'
 
 export const dynamic = 'force-dynamic'
@@ -48,6 +48,15 @@ export default async function Page() {
     : { data: [] as { verification_request_id: string; started_at: string | null; ends_at: string | null; status: string | null; total_checkins: number | null; nighttime_checkins: number | null; completed_at: string | null; consent_granted_at: string | null }[] }
   const sessionMap = new Map((sessions ?? []).map(s => [s.verification_request_id, s]))
 
+  // business_document rows store a private business-docs/<uid>/<file> object
+  // path in id_document_url, not a URL — sign a fresh short-lived one here
+  // (server-side, service role) before handing anything to the client.
+  const signedDocMap = await signBusinessDocUrls(
+    (requests ?? [])
+      .filter(r => r.verification_method === 'business_document')
+      .map(r => r.id_document_url)
+  )
+
   return (
     <div>
       <PageHeader title="Verification Management" description="KYC sessions, mailed codes, manual overrides" />
@@ -83,6 +92,10 @@ export default async function Page() {
               const profile = profileMap.get(r.user_id)
               const applicant = firstNonEmpty(r.full_name, profile?.full_name, profile?.email) ?? '—'
               const location = r.city && r.state ? `${r.city}, ${r.state}` : r.city ?? r.state ?? '—'
+              const resolvedRequest =
+                r.verification_method === 'business_document' && r.id_document_url
+                  ? { ...r, id_document_url: signedDocMap.get(r.id_document_url) ?? r.id_document_url }
+                  : r
               return (
                 <tr key={r.id} className="border-b border-gray-200 last:border-0 hover:bg-gray-50">
                   <td className="px-4 py-3 text-gray-700">{applicant}</td>
@@ -94,7 +107,7 @@ export default async function Page() {
                   <td className="px-4 py-3 text-gray-500">{formatDateTime(r.created_at)}</td>
                   <td className="px-4 py-3">
                     <VerificationDetailButton
-                      request={r}
+                      request={resolvedRequest}
                       session={sessionMap.get(r.id) ?? null}
                       applicantLabel={applicant}
                     />

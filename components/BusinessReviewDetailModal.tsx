@@ -6,7 +6,7 @@ import StatusBadge from '@/components/StatusBadge'
 import SubmitButton from '@/components/SubmitButton'
 import DocumentImage from '@/components/DocumentImage'
 import { updateReviewStatus } from '@/lib/actions/business'
-import { formatDateTime } from '@/lib/format'
+import { formatDateTime, firstNonEmpty } from '@/lib/format'
 
 const TYPE_COLOR: Record<string, 'blue' | 'purple'> = {
   business: 'blue',
@@ -30,6 +30,7 @@ export interface ApplicantProfile {
   business_phone: string | null
   business_website: string | null
   business_address: string | null
+  address: string | null
 }
 
 const Row = ({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -96,7 +97,9 @@ export default function BusinessReviewDetailModal({
                 </Row>
               )}
               {profile?.business_category && <Row label="Category">{profile.business_category}</Row>}
-              {profile?.business_address && <Row label="Address">{profile.business_address}</Row>}
+              {firstNonEmpty(profile?.business_address, profile?.address) && (
+                <Row label="Address">{firstNonEmpty(profile?.business_address, profile?.address)}</Row>
+              )}
               {profile?.business_description && <Row label="Description">{profile.business_description}</Row>}
 
               <Row label="Submitted Document">

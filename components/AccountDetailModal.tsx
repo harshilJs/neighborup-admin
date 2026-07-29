@@ -30,6 +30,7 @@ export interface AccountProfile {
   business_phone: string | null
   business_website: string | null
   business_address: string | null
+  address: string | null
   account_type: string
   verification_status: string | null
   created_at: string | null
@@ -101,7 +102,9 @@ export default function AccountDetailModal({
           )}
           <Row label="Category">{account.business_category ?? '—'}</Row>
           {account.business_description && <Row label="Description">{account.business_description}</Row>}
-          {account.business_address && <Row label="Address">{account.business_address}</Row>}
+          {firstNonEmpty(account.business_address, account.address) && (
+            <Row label="Address">{firstNonEmpty(account.business_address, account.address)}</Row>
+          )}
 
           <div className="border-t border-gray-200 pt-4">
             <Row label="Submitted Document">

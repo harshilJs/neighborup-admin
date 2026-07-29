@@ -32,7 +32,7 @@ export default async function Page({
   let accountsQuery = supabaseAdmin
     .from('profiles')
     .select(
-      'id, full_name, display_name, org_name, official_email, email, business_category, business_description, business_phone, business_website, business_address, account_type, verification_status, subscription_status, deleted_at, created_at'
+      'id, full_name, display_name, org_name, official_email, email, business_category, business_description, business_phone, business_website, business_address, address, account_type, verification_status, subscription_status, deleted_at, created_at'
     )
     .in('account_type', ['business', 'official'])
     .order('created_at', { ascending: false })
@@ -94,7 +94,7 @@ export default async function Page({
   const { data: reviewProfiles } = reviewerIds.length
     ? await supabaseAdmin
         .from('profiles')
-        .select('id, full_name, email, business_category, business_description, business_phone, business_website, business_address')
+        .select('id, full_name, email, business_category, business_description, business_phone, business_website, business_address, address')
         .in('id', reviewerIds)
     : {
         data: [] as {
@@ -106,6 +106,7 @@ export default async function Page({
           business_phone: string | null
           business_website: string | null
           business_address: string | null
+          address: string | null
         }[],
       }
   const reviewProfileMap = new Map((reviewProfiles ?? []).map(p => [p.id, p]))
@@ -129,6 +130,7 @@ export default async function Page({
               <th className="text-left px-4 py-3 font-medium">Type</th>
               <th className="text-left px-4 py-3 font-medium">Email</th>
               <th className="text-left px-4 py-3 font-medium">Category</th>
+              <th className="text-left px-4 py-3 font-medium">Address</th>
               <th className="text-left px-4 py-3 font-medium">Verification</th>
               <th className="text-left px-4 py-3 font-medium">Joined</th>
               <th className="text-left px-4 py-3 font-medium">Actions</th>
@@ -137,14 +139,14 @@ export default async function Page({
           <tbody>
             {accountsError && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-red-600">
+                <td colSpan={8} className="px-4 py-10 text-center text-red-600">
                   Failed to load accounts: {accountsError.message}
                 </td>
               </tr>
             )}
             {!accountsError && visibleAccounts.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-gray-400">
+                <td colSpan={8} className="px-4 py-10 text-center text-gray-400">
                   No reviewed business or official accounts yet.
                 </td>
               </tr>
@@ -157,6 +159,9 @@ export default async function Page({
                 </td>
                 <td className="px-4 py-3 text-gray-500">{firstNonEmpty(a.official_email, a.email) ?? '—'}</td>
                 <td className="px-4 py-3 text-gray-700">{a.business_category ?? '—'}</td>
+                <td className="px-4 py-3 text-gray-500 max-w-xs truncate" title={firstNonEmpty(a.business_address, a.address) ?? undefined}>
+                  {firstNonEmpty(a.business_address, a.address) ?? '—'}
+                </td>
                 <td className="px-4 py-3">
                   <StatusBadge
                     label={a.verification_status ?? 'pending'}
@@ -195,6 +200,7 @@ export default async function Page({
                 <th className="text-left px-4 py-3 font-medium">Applicant</th>
                 <th className="text-left px-4 py-3 font-medium">Type</th>
                 <th className="text-left px-4 py-3 font-medium">Org Name</th>
+                <th className="text-left px-4 py-3 font-medium">Address</th>
                 <th className="text-left px-4 py-3 font-medium">Submitted</th>
                 <th className="text-left px-4 py-3 font-medium">Actions</th>
               </tr>
@@ -212,6 +218,12 @@ export default async function Page({
                       <StatusBadge label={r.account_type} color={TYPE_COLOR[r.account_type] ?? 'gray'} />
                     </td>
                     <td className="px-4 py-3 text-gray-700">{r.org_name ?? '—'}</td>
+                    <td
+                      className="px-4 py-3 text-gray-500 max-w-xs truncate"
+                      title={firstNonEmpty(profile?.business_address, profile?.address) ?? undefined}
+                    >
+                      {firstNonEmpty(profile?.business_address, profile?.address) ?? '—'}
+                    </td>
                     <td className="px-4 py-3 text-gray-500">{formatDateTime(r.submitted_at)}</td>
                     <td className="px-4 py-3">
                       <BusinessReviewDetailModal

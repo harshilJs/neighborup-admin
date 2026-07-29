@@ -325,6 +325,21 @@ export default function VerificationDetailButton({
                 </>
               )}
 
+              {request.verification_method === 'business_document' && (
+                <>
+                  <Row label="Business Address">
+                    {[request.address_line1, request.city, request.state, request.zip_code].filter(Boolean).join(', ') || '—'}
+                  </Row>
+                  {request.id_document_url && (
+                    <Row label="Verification Document">
+                      <a href={request.id_document_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700">
+                        View document <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </Row>
+                  )}
+                </>
+              )}
+
               {(() => {
                 const parsedNotes = parseAdminNotes(request.admin_notes)
                 if (!parsedNotes) return null
