@@ -284,6 +284,11 @@ export default function VerificationDetailButton({
 
               {request.verification_method === 'id_upload' && (
                 <>
+                  {(request.address_line1 || request.city) && (
+                    <Row label="Address">
+                      {[request.address_line1, request.city, request.state, request.zip_code].filter(Boolean).join(', ') || '—'}
+                    </Row>
+                  )}
                   <Row label="Veriff Decision">
                     {request.veriff_decision ? (
                       <StatusBadge

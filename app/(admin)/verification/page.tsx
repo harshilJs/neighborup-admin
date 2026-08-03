@@ -13,7 +13,7 @@ const STATUS_COLOR: Record<string, 'green' | 'amber' | 'red'> = {
 }
 
 const VERIFICATION_FIELDS =
-  'id, user_id, verification_method, status, full_name, city, state, address_line1, zip_code, photo_url, id_document_url, mailed_code, code_verified, location_verification_start, location_verification_complete, admin_notes, created_at, approved_at, document_expires_at, veriff_session_url, veriff_decision, veriff_decision_at'
+  'id, user_id, verification_method, status, full_name, city, state, address_line1, zip_code, photo_url, id_document_url, mailed_code, code_verified, location_verification_start, location_verification_complete, admin_notes, created_at, updated_at, approved_at, document_expires_at, veriff_session_url, veriff_decision, veriff_decision_at'
 
 export default async function Page() {
   // Mailed-code verifications auto-approve once the recipient has confirmed the code —
@@ -28,7 +28,7 @@ export default async function Page() {
   const { data: requests, error } = await supabaseAdmin
     .from('verification_requests')
     .select(VERIFICATION_FIELDS)
-    .order('created_at', { ascending: false })
+    .order('updated_at', { ascending: false, nullsFirst: false })
     .limit(100)
 
   const userIds = Array.from(new Set((requests ?? []).map(r => r.user_id).filter(Boolean)))
@@ -69,7 +69,7 @@ export default async function Page() {
               <th className="text-left px-4 py-3 font-medium">Method</th>
               <th className="text-left px-4 py-3 font-medium">Location</th>
               <th className="text-left px-4 py-3 font-medium">Status</th>
-              <th className="text-left px-4 py-3 font-medium">Submitted</th>
+              <th className="text-left px-4 py-3 font-medium">Last Updated</th>
               <th className="text-left px-4 py-3 font-medium">Actions</th>
             </tr>
           </thead>
@@ -104,7 +104,7 @@ export default async function Page() {
                   <td className="px-4 py-3">
                     <StatusBadge label={r.status} color={STATUS_COLOR[r.status] ?? 'gray'} />
                   </td>
-                  <td className="px-4 py-3 text-gray-500">{formatDateTime(r.created_at)}</td>
+                  <td className="px-4 py-3 text-gray-500">{formatDateTime(r.updated_at ?? r.created_at)}</td>
                   <td className="px-4 py-3">
                     <VerificationDetailButton
                       request={resolvedRequest}
