@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Users, Flag, FileText,
   Users2, ShoppingBag, Baby, CreditCard, DollarSign,
-  Building2, BarChart2, Bell, Settings, LogOut,
+  Building2, BarChart2, Bell, Settings, LogOut, MessageSquare, Share2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { signOut } from '@/lib/actions/auth'
@@ -26,6 +26,7 @@ const nav = [
     { href: '/reports', icon: Flag, label: 'User Reports' },
   ]},
   { label: 'COMMUNITY', items: [
+    { href: '/invites', icon: Share2, label: 'Invites & Sharing' },
     { href: '/posts', icon: FileText, label: 'Posts & Feed' },
     { href: '/groups', icon: Users2, label: 'Groups' },
     { href: '/marketplace', icon: ShoppingBag, label: 'Marketplace' },
@@ -36,6 +37,7 @@ const nav = [
   ]},
   { label: 'OPERATIONS', items: [
     { href: '/analytics', icon: BarChart2, label: 'Analytics' },
+    { href: '/feedback', icon: MessageSquare, label: 'App Feedback' },
     { href: '/notifications', icon: Bell, label: 'Push Campaigns' },
     { href: '/settings', icon: Settings, label: 'Settings' },
   ]},
