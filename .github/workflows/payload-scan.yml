@@ -1,0 +1,83 @@
+name: payload-scan
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  payload-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Build-time config files are the injection target. They are never
+      # legitimately long: the largest in this repo is 60 chars.
+      # Observed payloads were 26,400-29,974 chars on a single line.
+      - name: build configs must not contain long lines
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            [ -f "$f" ] || continue
+            awk -v F="$f" 'length($0) > 300 {
+              printf "::error file=%s,line=%d::config line is %d chars (limit 300) - possible injected payload\n", F, NR, length($0)
+              rc = 1
+            } END { exit rc+0 }' "$f" || fail=1
+          done < <(git ls-files -- '*.config.*')
+          exit $fail
+
+      # Other source: threshold well above legitimate Tailwind/shadcn class
+      # strings (longest here is 681) and far below any observed payload.
+      - name: source files must not contain very long lines
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            [ -f "$f" ] || continue
+            awk -v F="$f" 'length($0) > 2000 {
+              printf "::error file=%s,line=%d::line is %d chars (limit 2000) - possible injected payload\n", F, NR, length($0)
+              rc = 1
+            } END { exit rc+0 }' "$f" || fail=1
+          done < <(git ls-files -- '*.js' '*.cjs' '*.mjs' '*.jsx' '*.ts' '*.tsx')
+          exit $fail
+
+      # The attacker's commit silently removed .env* so secrets would be
+      # committed by the next `git add -A`. Assert it is still ignored.
+      - name: .env must stay ignored
+        run: |
+          grep -q '^\.env\*' .gitignore || {
+            echo "::error file=.gitignore::.env* is no longer ignored - secrets would be committable"
+            exit 1
+          }
+
+      # createRequire appearing in a build config is how the loader reaches
+      # child_process/http from an ESM config file.
+      - name: no createRequire in build configs
+        run: |
+          hits=$(git ls-files -- '*.config.*' | xargs -r grep -l 'createRequire' || true)
+          if [ -n "$hits" ]; then
+            echo "$hits" | while read -r f; do
+              echo "::error file=$f::createRequire in a build config - typical loader bootstrap"
+            done
+            exit 1
+          fi
+
+      # Confirmation only. Never the sole test: every one of these scored zero
+      # against the variant actually found in this repo.
+      - name: known payload markers
+        run: |
+          hits=$(git grep -l -F \
+            -e 'A11--#' \
+            -e 'A9-3891-3' \
+            -e '0xa322E5f3' \
+            -e 'D311D3080e' \
+            -e '9aDC2490Ef' \
+            -e '/0x/ls' \
+            -- . ':!.github/workflows/payload-scan.yml' || true)
+          if [ -n "$hits" ]; then
+            echo "$hits" | while read -r f; do
+              echo "::error file=$f::known payload marker present"
+            done
+            exit 1
+          fi
